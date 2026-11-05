@@ -3,7 +3,7 @@
  * 改了 SHELL 或 DATA 列表、或数据结构变了，就把 VERSION 加一。 */
 'use strict';
 
-var VERSION = 'v7';
+var VERSION = 'v8';
 var CACHE = 'cnm-pwa-' + VERSION;
 var SCOPE = self.registration.scope;
 
@@ -23,6 +23,7 @@ var SHELL = [
   'children/page.js',
   'children/history.js',
   'assets/site.css',
+  'assets/hero-learning.webp',
   'assets/explore.css',
   'assets/home.js',
   'assets/stats-config.js',
@@ -119,7 +120,7 @@ self.addEventListener('fetch', function (event) {
     event.respondWith(networkFirst(req, true, abs('./')));
     return;
   }
-  if (/\.(?:json|png|svg|ico|webmanifest)$/.test(url.pathname)) {
+  if (/\.(?:json|png|svg|ico|webp|webmanifest)$/.test(url.pathname)) {
     event.respondWith(staleWhileRevalidate(req));
     return;
   }

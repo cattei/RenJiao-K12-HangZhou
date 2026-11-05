@@ -1,4 +1,5 @@
-/* 首页：统计和年级入口都从 data/*.json 计算，不写死数量。 */
+/* 首页：统计、学科卡片、年级入口全部从 data/*.json 实时计算，不写死数量。
+   2026-11-05：以线上 10 学科版本为基线重做视觉层，保留全部学科逻辑与本机盲区。 */
 (function () {
   'use strict';
   var raw = location.hash.replace(/^#/, '');
@@ -6,25 +7,45 @@
   if (/^(?:cnm|cne|cnp|cnc|cns|cnd|cnh|cng|cnb|cnk)_[A-Za-z0-9]+$/.test(raw)) return;
 
   var CN = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
-  var subjectParam = new URLSearchParams(location.search).get('subject');
-  var subject = subjectParam === 'english' || subjectParam === 'physics' || subjectParam === 'chinese' || subjectParam === 'science' || subjectParam === 'morality' || subjectParam === 'history' || subjectParam === 'geography' || subjectParam === 'biology' || subjectParam === 'chemistry' ? subjectParam : 'math';
-  var PREFIX = { math: 'cnm_', english: 'cne_', physics: 'cnp_', chinese: 'cnc_', science: 'cns_', morality: 'cnd_', history: 'cnh_', geography: 'cng_', biology: 'cnb_', chemistry: 'cnk_' };
+  var KEYS = ['math', 'chinese', 'science', 'morality', 'history', 'geography', 'biology', 'chemistry', 'english', 'physics'];
+  var SUBJECTS = {
+    math:      { name: '数学',       color: '#2AA88C', chip: '小学 → 高中 · 十科同步',               demo: 'diagnose/?target=cnm_221&demo=1', desc: '配方法' },
+    chinese:   { name: '语文',       color: '#FF7A9C', chip: '小学一至六年级 · 统编版',            demo: 'diagnose/?subject=chinese&grade=' + encodeURIComponent('一上') + '&demo=1', desc: '一年级上册语文' },
+    science:   { name: '科学',       color: '#22B8CF', chip: '小学一至六年级 · 教科版',            demo: 'diagnose/?subject=science&grade=' + encodeURIComponent('一上') + '&demo=1', desc: '一年级上册科学' },
+    morality:  { name: '道德与法治', color: '#FB8B5C', chip: '小学一至六年级 · 统编版',            demo: 'diagnose/?subject=morality&grade=' + encodeURIComponent('一上') + '&demo=1', desc: '一年级上册道德与法治' },
+    history:   { name: '历史',       color: '#A78BFA', chip: '初中七至九年级 · 统编版',            demo: 'diagnose/?subject=history&grade=' + encodeURIComponent('七上') + '&demo=1', desc: '七年级上册历史' },
+    geography: { name: '地理',       color: '#34B57A', chip: '初中七至八年级 · 人教版',            demo: 'diagnose/?subject=geography&grade=' + encodeURIComponent('七上') + '&demo=1', desc: '七年级上册地理' },
+    biology:   { name: '生物',       color: '#8CC63F', chip: '初中七至八年级 · 人教版',            demo: 'diagnose/?subject=biology&grade=' + encodeURIComponent('七上') + '&demo=1', desc: '七年级上册生物' },
+    chemistry: { name: '化学',       color: '#EC4899', chip: '初中九年级 · 人教版',                 demo: 'diagnose/?subject=chemistry&grade=' + encodeURIComponent('九上') + '&demo=1', desc: '九年级上册化学' },
+    english:   { name: '英语',       color: '#6C7BF2', chip: '三年级到高中 · 英语',                 demo: 'diagnose/?subject=english&grade=' + encodeURIComponent('四上') + '&demo=1', desc: '四年级上册英语' },
+    physics:   { name: '物理',       color: '#F5A623', chip: '初中八、九年级 · 高中必修与选择性必修', demo: 'diagnose/?subject=physics&grade=' + encodeURIComponent('八上') + '&demo=1', desc: '八年级上册物理' }
+  };
+  var ID_PREFIX = { math: 'cnm_', english: 'cne_', physics: 'cnp_', chinese: 'cnc_', science: 'cns_', morality: 'cnd_', history: 'cnh_', geography: 'cng_', biology: 'cnb_', chemistry: 'cnk_' };
   var STD_PREFIX = { math: 'cms-', english: 'ces-', physics: 'cps-', chinese: 'ccs-', science: 'css-', morality: 'cds-', history: 'chs-', geography: 'cgs-', biology: 'cbs-', chemistry: 'cks-' };
+
+  var subjectParam = new URLSearchParams(location.search).get('subject');
+  var subject = SUBJECTS[subjectParam] ? subjectParam : 'math';
+  var info = SUBJECTS[subject];
 
   function withSubject(href) {
     if (subject === 'math' || !href || href.indexOf('subject=') >= 0 || href.indexOf('http') === 0) return href;
     return href + (href.indexOf('?') >= 0 ? '&' : '?') + 'subject=' + subject;
   }
+  function setText(id, value) {
+    var node = document.getElementById(id);
+    if (node) node.textContent = value;
+  }
+  function fail(message) {
+    var box = document.getElementById('load-error');
+    if (!box) return;
+    box.hidden = false;
+    box.textContent = message;
+  }
 
-  document.body.classList.toggle('subject-english', subject === 'english');
-  document.body.classList.toggle('subject-physics', subject === 'physics');
-  document.body.classList.toggle('subject-chinese', subject === 'chinese');
-  document.body.classList.toggle('subject-science', subject === 'science');
-  document.body.classList.toggle('subject-morality', subject === 'morality');
-  document.body.classList.toggle('subject-history', subject === 'history');
-  document.body.classList.toggle('subject-geography', subject === 'geography');
-  document.body.classList.toggle('subject-biology', subject === 'biology');
-  document.body.classList.toggle('subject-chemistry', subject === 'chemistry');
+  /* ---- 学科切换：类、标题、文案、链接、高亮卡片 ---- */
+  KEYS.forEach(function (key) {
+    document.body.classList.toggle('subject-' + key, key === subject && key !== 'math');
+  });
   document.querySelectorAll('.subject-link').forEach(function (link) {
     var on = link.getAttribute('data-subject') === subject;
     link.classList.toggle('on', on);
@@ -36,138 +57,28 @@
     var next = withSubject(href);
     if (next && next !== href) link.setAttribute('href', next);
   });
-  if (subject === 'english') {
-    document.title = '英语 · 中小学·高中知识图谱';
-    var eye = document.querySelector('.eyebrow');
-    if (eye) eye.textContent = '英语：三年级到高中';
-    var primary = document.querySelector('.hero-actions a.btn-primary');
-    var browse = document.querySelector('.hero-actions a.btn:not(.btn-primary)');
-    if (primary) primary.setAttribute('href', 'diagnose/?subject=english');
-    if (browse) browse.setAttribute('href', 'explore/?subject=english');
-    var demo = document.querySelector('.quiet-link a');
-    if (demo) {
-      demo.setAttribute('href', 'diagnose/?subject=english&grade=' + encodeURIComponent('四上') + '&demo=1');
-      demo.textContent = '先看一遍演示：四年级上册英语';
-    }
-  } else if (subject === 'physics') {
-    document.title = '物理 · 中小学·高中知识图谱';
-    var peye = document.querySelector('.eyebrow');
-    if (peye) peye.textContent = '物理：初中八、九年级 · 高中必修与选择性必修';
-    var pprimary = document.querySelector('.hero-actions a.btn-primary');
-    var pbrowse = document.querySelector('.hero-actions a.btn:not(.btn-primary)');
-    if (pprimary) pprimary.setAttribute('href', 'diagnose/?subject=physics');
-    if (pbrowse) pbrowse.setAttribute('href', 'explore/?subject=physics');
-    var pdemo = document.querySelector('.quiet-link a');
-    if (pdemo) {
-      pdemo.setAttribute('href', 'diagnose/?subject=physics&grade=' + encodeURIComponent('八上') + '&demo=1');
-      pdemo.textContent = '先看一遍演示：八年级上册物理';
-    }
-  } else if (subject === 'chinese') {
-    document.title = '小学语文 · 中小学·高中知识图谱';
-    var zeye = document.querySelector('.eyebrow');
-    if (zeye) zeye.textContent = '语文：小学一至六年级 · 统编版';
-    var zprimary = document.querySelector('.hero-actions a.btn-primary');
-    var zbrowse = document.querySelector('.hero-actions a.btn:not(.btn-primary)');
-    if (zprimary) zprimary.setAttribute('href', 'diagnose/?subject=chinese');
-    if (zbrowse) zbrowse.setAttribute('href', 'explore/?subject=chinese');
-    var zdemo = document.querySelector('.quiet-link a');
-    if (zdemo) {
-      zdemo.setAttribute('href', 'diagnose/?subject=chinese&grade=' + encodeURIComponent('一上') + '&demo=1');
-      zdemo.textContent = '先看一遍演示：一年级上册语文';
-    }
-  } else if (subject === 'science') {
-    document.title = '小学科学 · 中小学·高中知识图谱';
-    var seye = document.querySelector('.eyebrow');
-    if (seye) seye.textContent = '科学：小学一至六年级 · 教科版';
-    var sprimary = document.querySelector('.hero-actions a.btn-primary');
-    var sbrowse = document.querySelector('.hero-actions a.btn:not(.btn-primary)');
-    if (sprimary) sprimary.setAttribute('href', 'diagnose/?subject=science');
-    if (sbrowse) sbrowse.setAttribute('href', 'explore/?subject=science');
-    var sdemo = document.querySelector('.quiet-link a');
-    if (sdemo) {
-      sdemo.setAttribute('href', 'diagnose/?subject=science&grade=' + encodeURIComponent('一上') + '&demo=1');
-      sdemo.textContent = '先看一遍演示：一年级上册科学';
-    }
-  } else if (subject === 'morality') {
-    document.title = '小学道德与法治 · 中小学·高中知识图谱';
-    var meye = document.querySelector('.eyebrow');
-    if (meye) meye.textContent = '道德与法治：小学一至六年级 · 统编版';
-    var mprimary = document.querySelector('.hero-actions a.btn-primary');
-    var mbrowse = document.querySelector('.hero-actions a.btn:not(.btn-primary)');
-    if (mprimary) mprimary.setAttribute('href', 'diagnose/?subject=morality');
-    if (mbrowse) mbrowse.setAttribute('href', 'explore/?subject=morality');
-    var mdemo = document.querySelector('.quiet-link a');
-    if (mdemo) {
-      mdemo.setAttribute('href', 'diagnose/?subject=morality&grade=' + encodeURIComponent('一上') + '&demo=1');
-      mdemo.textContent = '先看一遍演示：一年级上册道德与法治';
-    }
-  } else if (subject === 'history') {
-    document.title = '初中历史 · 中小学·高中知识图谱';
-    var heye = document.querySelector('.eyebrow');
-    if (heye) heye.textContent = '历史：初中七至九年级 · 统编版';
-    var hprimary = document.querySelector('.hero-actions a.btn-primary');
-    var hbrowse = document.querySelector('.hero-actions a.btn:not(.btn-primary)');
-    if (hprimary) hprimary.setAttribute('href', 'diagnose/?subject=history');
-    if (hbrowse) hbrowse.setAttribute('href', 'explore/?subject=history');
-    var hdemo = document.querySelector('.quiet-link a');
-    if (hdemo) {
-      hdemo.setAttribute('href', 'diagnose/?subject=history&grade=' + encodeURIComponent('七上') + '&demo=1');
-      hdemo.textContent = '先看一遍演示：七年级上册历史';
-    }
-  } else if (subject === 'geography') {
-    document.title = '初中地理 · 中小学·高中知识图谱';
-    var geye = document.querySelector('.eyebrow');
-    if (geye) geye.textContent = '地理：初中七至八年级 · 人教版';
-    var gprimary = document.querySelector('.hero-actions a.btn-primary');
-    var gbrowse = document.querySelector('.hero-actions a.btn:not(.btn-primary)');
-    if (gprimary) gprimary.setAttribute('href', 'diagnose/?subject=geography');
-    if (gbrowse) gbrowse.setAttribute('href', 'explore/?subject=geography');
-    var gdemo = document.querySelector('.quiet-link a');
-    if (gdemo) {
-      gdemo.setAttribute('href', 'diagnose/?subject=geography&grade=' + encodeURIComponent('七上') + '&demo=1');
-      gdemo.textContent = '先看一遍演示：七年级上册地理';
-    }
-  } else if (subject === 'biology') {
-    document.title = '初中生物 · 中小学·高中知识图谱';
-    var beye = document.querySelector('.eyebrow');
-    if (beye) beye.textContent = '生物：初中七至八年级 · 人教版';
-    var bprimary = document.querySelector('.hero-actions a.btn-primary');
-    var bbrowse = document.querySelector('.hero-actions a.btn:not(.btn-primary)');
-    if (bprimary) bprimary.setAttribute('href', 'diagnose/?subject=biology');
-    if (bbrowse) bbrowse.setAttribute('href', 'explore/?subject=biology');
-    var bdemo = document.querySelector('.quiet-link a');
-    if (bdemo) {
-      bdemo.setAttribute('href', 'diagnose/?subject=biology&grade=' + encodeURIComponent('七上') + '&demo=1');
-      bdemo.textContent = '先看一遍演示：七年级上册生物';
-    }
-  } else if (subject === 'chemistry') {
-    document.title = '化学 · 中小学·高中知识图谱';
-    var ceye = document.querySelector('.eyebrow');
-    if (ceye) ceye.textContent = '化学：初中九年级 · 人教版';
-    var cprimary = document.querySelector('.hero-actions a.btn-primary');
-    var cbrowse = document.querySelector('.hero-actions a.btn:not(.btn-primary)');
-    if (cprimary) cprimary.setAttribute('href', 'diagnose/?subject=chemistry');
-    if (cbrowse) cbrowse.setAttribute('href', 'explore/?subject=chemistry');
-    var cdemo = document.querySelector('.quiet-link a');
-    if (cdemo) {
-      cdemo.setAttribute('href', 'diagnose/?subject=chemistry&grade=' + encodeURIComponent('九上') + '&demo=1');
-      cdemo.textContent = '先看一遍演示：九年级上册化学';
-    }
-  }
+  document.querySelectorAll('.subject-card[data-subject]').forEach(function (card) {
+    var on = card.getAttribute('data-subject') === subject;
+    card.classList.toggle('is-current', on);
+    if (on) card.setAttribute('aria-current', 'true');
+    else card.removeAttribute('aria-current');
+  });
 
-  function setText(id, value) {
-    var node = document.getElementById(id);
-    if (node) node.textContent = value;
-  }
+  document.title = (subject === 'math' ? '' : info.name + ' · ') + '知识图谱 · 杭州 K12 同步学习';
+  setText('hero-chip-text', info.chip);
+  setText('current-subject-name', '当前学科 · ' + info.name);
+  var currentDot = document.getElementById('current-subject-dot');
+  if (currentDot) currentDot.style.background = info.color;
+  var heroPrimary = document.querySelector('.hero-actions a.btn-primary');
+  var heroBrowse = document.querySelector('.hero-actions a.btn:not(.btn-primary)');
+  if (heroPrimary) heroPrimary.setAttribute('href', withSubject('diagnose/'));
+  if (heroBrowse) heroBrowse.setAttribute('href', withSubject('explore/'));
+  var demoLink = document.getElementById('demo-link');
+  if (demoLink) demoLink.setAttribute('href', info.demo);
+  var demoDesc = document.querySelector('.final-cta p');
+  if (demoDesc) demoDesc.textContent = '先看一遍演示：' + info.desc + '。两分钟走完一次完整的答错回溯与路径生成。';
 
-  function fail(message) {
-    var box = document.getElementById('load-error');
-    if (!box) return;
-    box.hidden = false;
-    box.textContent = message;
-  }
-
-
+  /* ---- 本机盲区汇总（线上原有功能，原样保留） ---- */
   function renderBlindHome(allTopics) {
     var box = document.getElementById('blind-home');
     var list = document.getElementById('blind-home-list');
@@ -223,128 +134,152 @@
     fetch('data/questions.json'),
     fetch('data/cn-curriculum-standards.json')
   ]).then(function (responses) {
-    responses.forEach(function (response, index) {
+    responses.forEach(function (response) {
       if (!response.ok) throw new Error('HTTP ' + response.status);
     });
     return Promise.all(responses.map(function (response) { return response.json(); }));
   }).then(function (data) {
     var allTopics = data[0];
-    var topics = data[0];
-    var deps = data[1];
-    var questions = data[2];
+    var allDeps = data[1];
+    var allQuestions = data[2];
     var standards = data[3];
-    if (!Array.isArray(topics) || !Array.isArray(deps) || !Array.isArray(questions)) {
+    if (!Array.isArray(allTopics) || !Array.isArray(allDeps) || !Array.isArray(allQuestions)) {
       throw new Error('数据格式无法识别');
     }
-    var items = standards && Array.isArray(standards.items) ? standards.items : [];
+    var allItems = standards && Array.isArray(standards.items) ? standards.items : [];
+
     function subjectOfId(id) {
       id = String(id || '');
-      if (id.indexOf('cne_') === 0) return 'english';
-      if (id.indexOf('cnp_') === 0) return 'physics';
-      if (id.indexOf('cnc_') === 0) return 'chinese';
-      if (id.indexOf('cns_') === 0) return 'science';
-      if (id.indexOf('cnd_') === 0) return 'morality';
-      if (id.indexOf('cnh_') === 0) return 'history';
-      if (id.indexOf('cng_') === 0) return 'geography';
-      if (id.indexOf('cnb_') === 0) return 'biology';
-      if (id.indexOf('cnk_') === 0) return 'chemistry';
+      for (var i = 0; i < KEYS.length; i++) {
+        if (id.indexOf(ID_PREFIX[KEYS[i]]) === 0 && KEYS[i] !== 'math') return KEYS[i];
+      }
       return 'math';
     }
     function subjectOfStd(id) {
       id = String(id || '');
-      if (id.indexOf('ces-') === 0) return 'english';
-      if (id.indexOf('cps-') === 0) return 'physics';
-      if (id.indexOf('ccs-') === 0) return 'chinese';
-      if (id.indexOf('css-') === 0) return 'science';
-      if (id.indexOf('cds-') === 0) return 'morality';
-      if (id.indexOf('chs-') === 0) return 'history';
-      if (id.indexOf('cgs-') === 0) return 'geography';
-      if (id.indexOf('cbs-') === 0) return 'biology';
-      if (id.indexOf('cks-') === 0) return 'chemistry';
+      for (var i = 0; i < KEYS.length; i++) {
+        if (id.indexOf(STD_PREFIX[KEYS[i]]) === 0 && KEYS[i] !== 'math') return KEYS[i];
+      }
       return 'math';
     }
-    var wantEnglish = subject === 'english';
+
+    /* 十科合计（stat-grid） */
+    setText('n-topics', String(allTopics.length));
+    setText('n-edges', String(allDeps.length));
+    setText('n-questions', String(allQuestions.length));
+    setText('n-standards', String(allItems.length));
+
+    /* 十张学科卡片的数字 */
+    KEYS.forEach(function (key) {
+      var count = allTopics.filter(function (t) { return (t.subject || subjectOfId(t.id)) === key; }).length;
+      var questions = allQuestions.filter(function (q) { return (q.subject || subjectOfId(q.topicId)) === key; }).length;
+      var c = document.querySelector('[data-subject-count="' + key + '"]');
+      var q = document.querySelector('[data-subject-questions="' + key + '"]');
+      if (c) c.textContent = String(count);
+      if (q) q.textContent = String(questions);
+    });
+
+    /* 当前学科统计（原有按学科筛选逻辑，保留在说明行） */
+    var curTopics = allTopics.filter(function (t) { return (t.subject || subjectOfId(t.id)) === subject; });
+    var curDeps = allDeps.filter(function (e) { return subjectOfId(e.topicId) === subject; });
+    var curQuestions = allQuestions.filter(function (q) { return subjectOfId(q.topicId) === subject; });
+    var curItems = allItems.filter(function (i) { return subjectOfStd(i.id) === subject; });
+    var note = document.getElementById('stat-current');
+    if (note) {
+      note.textContent = '当前学科 · ' + info.name + '：' + curTopics.length + ' 个知识点 · ' +
+        curDeps.length + ' 条先修边 · ' + curQuestions.length + ' 道题 · ' + curItems.length + ' 条课标条目。';
+    }
+
+    /* ---- 年级入口：按小学 / 初中 / 高中三段生成，保留线上各学科范围 ---- */
+    var grades = document.getElementById('grades');
+    if (!grades) return;
+    grades.replaceChildren();
+    grades.removeAttribute('aria-busy');
+
     var wantPhysics = subject === 'physics';
+    var wantEnglish = subject === 'english';
     var wantChinese = subject === 'chinese' || subject === 'science' || subject === 'morality';
     var wantHistory = subject === 'history';
     var wantGeography = subject === 'geography';
     var wantBiology = subject === 'biology';
     var wantChemistry = subject === 'chemistry';
-    topics = topics.filter(function (topic) { return (topic.subject || subjectOfId(topic.id)) === subject; });
-    deps = deps.filter(function (edge) { return subjectOfId(edge.topicId) === subject; });
-    questions = questions.filter(function (question) { return subjectOfId(question.topicId) === subject; });
-    items = items.filter(function (item) { return subjectOfStd(item.id) === subject; });
-    setText('n-topics', String(topics.length));
-    setText('n-edges', String(deps.length));
-    setText('n-questions', String(questions.length));
-    setText('n-standards', String(items.length));
+    var groups = [
+      { key: 'primary', label: '小学', cards: [] },
+      { key: 'junior', label: wantChemistry ? '初中化学' : (wantPhysics ? '初中物理' : '初中'), cards: [] },
+      { key: 'senior', label: '高中', cards: [] }
+    ];
 
-    var grades = document.getElementById('grades');
-    if (!grades) return;
-    grades.replaceChildren();
-    grades.removeAttribute('aria-busy');
-    function addCard(g, stageName, title, klass, splitText, href) {
-      var list = topics.filter(function (topic) { return topic.grade === g; });
-      var link = document.createElement('a');
-      link.className = 'grade-card ' + klass;
-      link.href = href;
-      var stage = document.createElement('span');
-      stage.className = 'grade-stage';
-      stage.textContent = stageName;
-      var name = document.createElement('strong');
-      name.textContent = title;
-      var count = document.createElement('span');
-      count.className = 'grade-count';
-      count.textContent = list.length + ' 个知识点';
-      var split = document.createElement('span');
-      split.className = 'grade-stage';
-      split.textContent = splitText;
-      link.append(stage, name, count, split);
-      grades.append(link);
+    function push(stage, grade, title, href) {
+      var count = curTopics.filter(function (topic) { return topic.grade === grade; }).length;
+      groups.forEach(function (group) {
+        if (group.key === stage) group.cards.push({ title: title, count: count, href: href });
+      });
+    }
+    function gradeHref(g) {
+      return subject !== 'math' ? 'explore/?subject=' + subject + '&grade=' + g : 'explore/?grade=' + g;
     }
     var from = wantPhysics ? 8 : (wantEnglish ? 3 : (wantChemistry ? 9 : (wantHistory || wantGeography || wantBiology ? 7 : 1)));
     var to = wantChinese ? 6 : (wantChemistry ? 9 : (wantGeography || wantBiology ? 8 : 9));
     for (var g = from; g <= to; g++) {
-      var list = topics.filter(function (topic) { return topic.grade === g; });
-      var up = list.filter(function (topic) { return topic.semester === '上'; }).length;
-      var down = list.filter(function (topic) { return topic.semester === '下'; }).length;
-      var whole = list.filter(function (topic) { return topic.semester === '全'; }).length;
-      var splitText = whole ? '全一册 ' + whole : '上 ' + up + ' · 下 ' + down;
-      var href = subject !== 'math' ? 'explore/?subject=' + subject + '&grade=' + g : 'explore/?grade=' + g;
-      addCard(g, g <= 6 ? '小学' : (wantPhysics ? '初中物理' : '初中'), CN[g] + '年级', g <= 6 ? 'is-primary' : 'is-junior', splitText, href);
+      push(g <= 6 ? 'primary' : 'junior', g, CN[g] + '年级', gradeHref(g));
     }
-    if (wantChinese) {
-      /* 小学语文、小学科学、小学道德与法治只到六年级 */
-    } else if (wantHistory) {
-      /* 初中历史只到九年级 */
-    } else if (wantGeography) {
-      /* 初中地理只到八年级 */
-    } else if (wantBiology) {
-      /* 初中生物只到八年级，九年级没有生物课 */
-    } else if (wantChemistry) {
-      /* 初中化学只开九年级，没有小学、七八年级和高中卡片 */
-    } else if (wantPhysics) {
-      addCard(10, '高中物理', '必修一', 'is-senior', '必修第一册', 'explore/?subject=physics&grade=10');
-      addCard(11, '高中物理', '必修二', 'is-senior', '必修第二册', 'explore/?subject=physics&grade=11');
-      addCard(12, '高中物理', '必修三', 'is-senior', '必修第三册', 'explore/?subject=physics&grade=12');
-      addCard(13, '高中物理', '选必一', 'is-senior', '选择性必修第一册', 'explore/?subject=physics&grade=13');
-      addCard(14, '高中物理', '选必二', 'is-senior', '选择性必修第二册', 'explore/?subject=physics&grade=14');
-      addCard(15, '高中物理', '选必三', 'is-senior', '选择性必修第三册', 'explore/?subject=physics&grade=15');
+    if (wantPhysics) {
+      [[10, '必修一'], [11, '必修二'], [12, '必修三'], [13, '选必一'], [14, '选必二'], [15, '选必三']]
+        .forEach(function (pair) { push('senior', pair[0], pair[1], gradeHref(pair[0])); });
     } else if (wantEnglish) {
-      addCard(10, '高中', '必修一', 'is-senior', '必修第一册', 'explore/?subject=english&grade=10');
-      addCard(11, '高中', '必修二', 'is-senior', '必修第二册', 'explore/?subject=english&grade=11');
-      addCard(12, '高中', '必修三', 'is-senior', '必修第三册', 'explore/?subject=english&grade=12');
-      addCard(13, '高中', '选必一', 'is-senior', '选择性必修第一册', 'explore/?subject=english&grade=13');
-      addCard(14, '高中', '选必二', 'is-senior', '选择性必修第二册', 'explore/?subject=english&grade=14');
-      addCard(15, '高中', '选必三', 'is-senior', '选择性必修第三册', 'explore/?subject=english&grade=15');
-      addCard(16, '高中', '选必四', 'is-senior', '选择性必修第四册', 'explore/?subject=english&grade=16');
-    } else {
-      addCard(10, '高中', '高一', 'is-senior', '必修第一册', 'explore/?grade=10');
-      addCard(11, '高中', '高二', 'is-senior', '必修第二册', 'explore/?grade=11');
-      addCard(12, '高中', '选必一', 'is-senior', '选择性必修第一册', 'explore/?grade=12');
-      addCard(13, '高中', '选必二', 'is-senior', '选择性必修第二册', 'explore/?grade=13');
-      addCard(14, '高中', '选必三', 'is-senior', '选择性必修第三册', 'explore/?grade=14');
+      [[10, '必修一'], [11, '必修二'], [12, '必修三'], [13, '选必一'], [14, '选必二'], [15, '选必三'], [16, '选必四']]
+        .forEach(function (pair) { push('senior', pair[0], pair[1], gradeHref(pair[0])); });
+    } else if (!wantChinese && !wantHistory && !wantGeography && !wantBiology && !wantChemistry) {
+      [[10, '高一'], [11, '高二'], [12, '选必一'], [13, '选必二'], [14, '选必三']]
+        .forEach(function (pair) { push('senior', pair[0], pair[1], gradeHref(pair[0])); });
     }
+
+    var RANGE = {
+      primary: wantEnglish ? '三 – 六年级' : '一 – 六年级',
+      junior: wantChemistry ? '九年级' : (wantPhysics ? '八 – 九年级' : (wantGeography || wantBiology ? '七 – 八年级' : '七 – 九年级')),
+      senior: '必修 + 选必'
+    };
+    groups.forEach(function (group) {
+      if (!group.cards.length) return;
+      var total = group.cards.reduce(function (sum, card) { return sum + card.count; }, 0);
+      var wrap = document.createElement('div');
+      wrap.className = 'grade-group grade-group--' + group.key;
+      wrap.setAttribute('data-stage', group.key);
+      var label = document.createElement('div');
+      label.className = 'grade-group__label';
+      var badge = document.createElement('span');
+      badge.className = 'grade-group__badge';
+      badge.textContent = group.label;
+      var range = document.createElement('span');
+      range.className = 'grade-group__range';
+      range.textContent = RANGE[group.key] + ' · ' + total + ' 个知识点';
+      label.append(badge, range);
+      var cards = document.createElement('div');
+      cards.className = 'grade-group__cards';
+      group.cards.forEach(function (card) {
+        var link = document.createElement('a');
+        link.className = 'grade-card';
+        link.href = card.href;
+        link.textContent = card.title + ' · ' + card.count;
+        cards.append(link);
+      });
+      wrap.append(label, cards);
+      grades.append(wrap);
+    });
+
+    /* 学段筛选（纯展示层交互，不改变数据） */
+    document.querySelectorAll('.stage-chip').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var stage = chip.getAttribute('data-stage');
+        document.querySelectorAll('.stage-chip').forEach(function (item) {
+          item.classList.toggle('on', item === chip);
+        });
+        document.querySelectorAll('.grade-group').forEach(function (group) {
+          group.hidden = stage !== 'all' && group.getAttribute('data-stage') !== stage;
+        });
+      });
+    });
+
     renderBlindHome(allTopics);
   }).catch(function (error) {
     fail('数据没有加载成功（' + (error && error.message ? error.message : error) + '）。请在项目根目录运行 python3 -m http.server 8000，再用浏览器打开，不要直接双击 html 文件。');

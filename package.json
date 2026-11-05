@@ -1,7 +1,7 @@
 {
-  "name": "cn-math-taxonomy",
+  "name": "renjiao-k12-hangzhou",
   "version": "1.0.0",
-  "description": "对齐《义务教育数学课程标准（2022 年版）》与人教版一–九的知识点 DAG，附**自适应前置诊断**与题库。答错会沿先修边从初中一直回溯到具体的小学知识点，并给出按年级从低到高排列的学习路径。仓库名仍是 `cn-math-taxonomy`。",
+  "description": "对齐《义务教育数学课程标准（2022 年版）》与人教版一–九的知识点 DAG，附**自适应前置诊断**与题库。答错会沿先修边从初中一直回溯到具体的小学知识点，并给出按年级从低到高排列的学习路径。仓库：`RenJiao-K12-HangZhou`（杭州 K12 同步学习材料与教学内容索引）。",
   "main": "index.js",
   "directories": {
     "doc": "docs",
@@ -12,16 +12,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xiaoyang111222/cn-math-taxonomy.git"
+    "url": "git+https://github.com/cattei/RenJiao-K12-HangZhou.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/xiaoyang111222/cn-math-taxonomy/issues"
+    "url": "https://github.com/cattei/RenJiao-K12-HangZhou/issues"
   },
-  "homepage": "https://github.com/xiaoyang111222/cn-math-taxonomy#readme",
+  "homepage": "https://github.com/cattei/RenJiao-K12-HangZhou#readme",
   "allowScripts": {
     "esbuild@0.27.3": true,
     "workerd@1.20260426.1": true,

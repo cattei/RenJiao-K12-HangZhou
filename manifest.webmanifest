@@ -2,14 +2,14 @@
   "id": "./",
   "name": "中小学·高中知识图谱",
   "short_name": "知识图谱",
-  "description": "数学、英语、物理的知识图谱与自适应诊断，沿先修关系找到薄弱根因。",
+  "description": "数学、语文、科学、道法、历史、地理、生物、化学、英语、物理十科知识图谱与自适应诊断，沿先修关系找到薄弱根因。",
   "lang": "zh-CN",
   "dir": "ltr",
   "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f4f5f7",
-  "theme_color": "#0f6e62",
+  "background_color": "#FFFAF2",
+  "theme_color": "#2AA88C",
   "categories": [
     "education"
   ],
