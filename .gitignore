@@ -11,3 +11,10 @@ __pycache__/
 PROMPT*.md
 chain.sh
 .cf-token-workers
+
+# 本地参考资料（杭州教材配套，仅本机保留，不入库）
+参考/
+
+# 多源比对生成物（不入库）
+align-report.md
+align-report.json

@@ -11142,7 +11142,17 @@
       "answer": "延长 AD 至 E 使 DE=AD，证 △ABD≌△ECD，再用三边关系"
     },
     "external": false,
-    "standards": []
+    "standards": [
+      {
+        "id": "cms-2022:4.GG.26",
+        "confidence": "inferred",
+        "note": "综合拓展点：全等三角形的辅助线与模型是 14.1–14.3 判定定理的应用，课标无同名条款，按最邻近条目挂接；不代表课标要求掌握模型套路。"
+      },
+      {
+        "id": "cms-2022:4.GG.57",
+        "confidence": "inferred"
+      }
+    ]
   },
   {
     "id": "cnm_131",
@@ -12735,7 +12745,17 @@
       "answer": "AF=5，DF=4，CF=1"
     },
     "external": false,
-    "standards": []
+    "standards": [
+      {
+        "id": "cms-2022:4.GG.41",
+        "confidence": "inferred",
+        "note": "综合拓展点：四边形折叠/动点以平行四边形性质与判定为基础，折叠对应轴对称，课标无同名条款，按最邻近条目挂接。"
+      },
+      {
+        "id": "cms-2022:4.GG.60",
+        "confidence": "inferred"
+      }
+    ]
   },
   {
     "id": "cnm_193",
