@@ -1002,7 +1002,7 @@
     }
     var now = new Date();
     return {
-      siteName: '中小学·高中知识图谱',
+      siteName: '孙开元学习记录',
       subject: subjectName,
       scope: shareScopeText(),
       mastered: sum.mastered.length,

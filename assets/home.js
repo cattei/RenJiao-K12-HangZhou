@@ -64,7 +64,7 @@
     else card.removeAttribute('aria-current');
   });
 
-  document.title = (subject === 'math' ? '' : info.name + ' · ') + '知识图谱 · 杭州 K12 同步学习';
+  document.title = (subject === 'math' ? '' : info.name + ' · ') + '孙开元学习记录';
   setText('hero-chip-text', info.chip);
   setText('current-subject-name', '当前学科 · ' + info.name);
   var currentDot = document.getElementById('current-subject-dot');
