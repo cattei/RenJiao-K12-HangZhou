@@ -94,3 +94,69 @@ main.kids { width: min(760px, 100%); margin: 0 auto; padding: 20px 16px 56px; }
 .wk-chapter { margin: 14px 0 18px; }
 .wk-chapter-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; margin-bottom: 4px; }
 .wk-chapter-title { margin: 0; font-size: 1.02rem; }
+
+/* ==========================================================================
+   2026-11-11 学习档案 / 盲区与历史视觉统一层
+   档案卡、表单卡、备份卡、记录卡统一为柔彩 Bento；不改结构与滚动属性。
+   ========================================================================== */
+main.kids { width: min(880px, 100%); padding: 28px 20px 64px; }
+.kid-card, .kid-form, .kid-backup, .kid-section > .rec, .kid-empty-card {
+  border: 1px solid #EEF0F6; border-radius: 22px;
+  background: #FFFFFF; box-shadow: 0 8px 28px rgba(27, 35, 64, 0.05);
+}
+.kid-card { padding: 20px 22px; margin-bottom: 14px; border-top: 3px solid #EEF0F6; }
+.kid-card.is-current {
+  border-top-color: var(--brand); box-shadow: 0 12px 32px rgba(42, 168, 140, 0.12);
+}
+.kid-head h3 { font-size: 18px; }
+.kid-badge { border-radius: 100px; padding: 2px 10px; }
+.kid-tag { border-radius: 100px; padding: 3px 10px; }
+.kid-empty {
+  margin: 10px 0 16px; padding: 18px 20px; border-radius: 18px;
+  background: var(--brand-soft); color: var(--brand-strong); font-weight: 600;
+}
+.kid-form, .kid-backup { padding: 22px 24px; }
+.kid-form { margin-top: 20px; }
+.kid-backup { margin-bottom: 20px; }
+.kid-import { border-top-color: #EEF0F6; }
+.kid-import-preview { border-radius: 16px; padding: 16px; background: #F7F8FC; }
+.kid-picker {
+  padding: 12px 14px; border-radius: 16px;
+  background: #FFFFFF; border: 1px solid #EEF0F6;
+}
+.rec { border-radius: 18px; margin-bottom: 12px; }
+.rec > summary { border-radius: 18px; }
+.rec-body { border-top-color: #EEF0F6; }
+.wk-item { padding: 14px 0; border-bottom-color: #EEF0F6; }
+.wk-name { font-size: 16px; }
+.wk-chapter { margin: 18px 0 22px; }
+.kids .quiet-link a { color: var(--brand-strong); }
+.kid-note { font-size: 13px; line-height: 1.8; color: var(--muted); }
+
+@media (prefers-color-scheme: dark) {
+  .kid-card, .kid-form, .kid-backup, .kid-section > .rec, .kid-empty-card,
+  .kid-picker { background: var(--bg-elev); border-color: var(--line); }
+  .kid-import-preview, .rec-body { background: var(--bg-muted); border-color: var(--line); }
+  .kid-empty { background: var(--brand-soft); color: var(--brand-strong); }
+}
+@media (max-width: 640px) {
+  main.kids { padding: 18px 12px 48px; }
+  .kid-card, .kid-form, .kid-backup { padding: 18px 16px; border-radius: 20px; }
+  .kid-picker { padding: 10px 12px; }
+}
+
+/* 2026-11-11 复核补丁 C：空筛选条与学科胶囊 */
+.kid-picker:empty { display: none; }
+.kid-tabs { margin: 14px 0 18px; gap: 8px; }
+.kid-tabs .stage-tab {
+  padding: 0 14px; border-radius: 100px; font-size: 12px; font-weight: 700;
+  background: #FFFFFF; border-color: #E9EDF3;
+}
+.kid-tabs .stage-tab.on, .kid-tabs .stage-tab[aria-selected="true"] {
+  background: var(--brand); color: var(--on-brand); border-color: transparent;
+}
+.kid-empty + .btn { margin-bottom: 14px; }
+@media (prefers-color-scheme: dark) {
+  .kid-tabs .stage-tab { background: var(--bg-elev); border-color: var(--line); }
+  .kid-tabs .stage-tab.on { background: var(--brand); color: var(--on-brand); }
+}

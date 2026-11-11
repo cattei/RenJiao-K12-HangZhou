@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-title" content="知识图谱">
 <link rel="stylesheet" href="../assets/pwa.css">
 </head>
-<body>
+<body class="page-diagnose">
 <div class="top-banner">
   <svg class="banner-star" viewBox="0 0 16 16" aria-hidden="true"><path fill="#F5A623" d="M8 1.5l1.8 3.9 4.2.5-3.1 2.9.8 4.2L8 10.9l-3.7 2.1.8-4.2L2 5.9l4.2-.5L8 1.5z"/></svg>
   <span>十科知识图谱已覆盖小学到高中 · 对齐 2025 修订版课标与 2026 秋新教材目录</span>
@@ -52,7 +52,16 @@
 </header>
 <main id="root"><p class="loading">加载数据中……</p></main>
 <footer class="site-footer">
-  <p><a href="https://github.com/cattei/RenJiao-K12-HangZhou/issues/new/choose">提交 Issue</a></p>
+  <div class="footer-brand">
+    <svg viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="9" fill="#2AA88C"/><path d="M7 19h5c0-4 3-6 6-6h3" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/><circle cx="7" cy="19" r="2.2" fill="#FFC857"/><circle cx="21" cy="13" r="2.2" fill="#FFFFFF"/></svg>
+    <strong>孙开元学习记录 · 中小学到高中</strong>
+  </div>
+  <nav class="footer-links" aria-label="页脚导航">
+    <a href="../">首页</a>
+    <a href="../explore/">知识图谱</a>
+    <a href="https://github.com/cattei/RenJiao-K12-HangZhou" target="_blank" rel="noopener noreferrer">关于</a>
+    <a href="https://github.com/cattei/RenJiao-K12-HangZhou/issues/new/choose" target="_blank" rel="noopener noreferrer">提交 Issue</a>
+  </nav>
 </footer>
 <script src="../assets/vendor/cytoscape.min.js"></script>
 <script src="../assets/vendor/dagre.min.js"></script>

@@ -220,3 +220,84 @@ table.log select { min-height: 44px; }
 .blind-item { padding: 8px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
 .blind-name { font-weight: 700; }
 .blind-retest { font-weight: 700; white-space: nowrap; }
+
+/* ==========================================================================
+   2026-11-11 诊断页视觉统一层
+   卡片 Bento 化、题目区突出、反馈柔彩化；不改交互相关定位与滚动属性。
+   ========================================================================== */
+main#root { width: min(920px, 100%); padding: 28px 20px 64px; }
+.card {
+  padding: 24px; margin-bottom: 16px;
+  border: 1px solid #EEF0F6; border-radius: 24px;
+  background: #FFFFFF; box-shadow: 0 8px 28px rgba(27, 35, 64, 0.05);
+}
+.card h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+.card h2 { font-size: 19px; font-weight: 700; }
+.card h3 { font-size: 15px; font-weight: 700; }
+.banner { border: 0; border-radius: 16px; padding: 14px 18px; background: var(--brand-soft); }
+.banner.demo { background: #FFF3DE; }
+.q-title { font-size: 22px; font-weight: 700; }
+.q-text {
+  font-size: 18px; line-height: 1.8; padding: 20px 22px; border-radius: 18px;
+  background: #F7F8FC; border: 1px solid #EEF0F6;
+}
+button.choice {
+  min-height: 54px; padding: 14px 18px; border-radius: 16px;
+  font-size: 16px; background: #FFFFFF; border-color: #E3E8F0;
+  transition: border-color 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+}
+button.choice:hover { border-color: var(--brand); background: var(--brand-soft); }
+button.choice.picked {
+  border-color: var(--brand); background: var(--brand-soft); box-shadow: inset 0 0 0 2px var(--brand);
+}
+.progress { height: 10px; background: #EEF2F7; }
+.progress > i { background: linear-gradient(90deg, var(--brand), #6C7BF2); }
+.notice, .verdict, .refans, .explain { border-radius: 14px; padding: 12px 16px; }
+.verdict.ok { background: #E8F7F2; color: #1D8A73; }
+.verdict.no { background: #FFEFF3; color: #E85C86; }
+.refans { background: #E8F7F2; border: 1px dashed var(--brand); }
+.explain { background: #E9ECFF; border-left: 4px solid #6C7BF2; }
+.stats { gap: 12px; }
+.stat { border-radius: 18px; padding: 14px 10px; background: #F7F8FC; }
+.stat b { font-size: 26px; }
+.stat.ok { background: #E8F7F2; }
+.stat.bad { background: #FFEFF3; }
+.stat.shaky { background: #FFF3DE; }
+.stat.unk { background: #E9ECFF; }
+.stat.ask { background: #F1ECFF; }
+.tag { border-radius: 100px; padding: 3px 10px; font-size: 12px; }
+.tag.root { background: #E85C86; }
+ol.path > li::before {
+  width: 30px; height: 30px; border-radius: 10px; line-height: 30px;
+  background: var(--brand); font-size: 14px;
+}
+.vol { border-color: #EEF0F6; border-radius: 18px; background: #FFFFFF; }
+.vol > summary { background: #F7F8FC; border-radius: 18px; }
+.std { border-radius: 14px; background: #F7F8FC; border-left: 3px solid var(--brand); }
+#path-cy { border: 0; border-radius: 18px; background: #F7F8FC; }
+.share-panel { border-radius: 24px 24px 0 0; }
+.blind-item { padding: 12px 0; border-bottom-color: #EEF0F6; }
+.legend li { font-size: 12px; font-weight: 600; }
+
+@media (min-width: 701px) {
+  .share-panel { border-radius: 24px; }
+}
+@media (prefers-color-scheme: dark) {
+  .card, .vol, button.choice, .q-text, .stat, .std, #path-cy, .refans, .explain,
+  .vol > summary, .share-panel { background: var(--bg-elev); border-color: var(--line); }
+  .banner, .verdict.ok, .refans, .stat.ok { background: #17453C; }
+  .verdict.no, .stat.bad { background: #4A1F2B; }
+  .verdict.ok, .verdict.no { color: var(--text); }
+  .stat.shaky { background: #4A3512; }
+  .stat.unk, .explain, .stat.ask { background: #2A3266; }
+  .banner.demo { background: #4A3512; }
+  .progress { background: #252D40; }
+  button.choice:hover, button.choice.picked { background: var(--brand-soft); }
+}
+@media (max-width: 640px) {
+  main#root { padding: 18px 12px 48px; }
+  .card { padding: 18px 16px; border-radius: 20px; }
+  .q-title { font-size: 20px; }
+  .q-text { padding: 16px; font-size: 16px; }
+  button.choice { font-size: 15px; padding: 12px 14px; }
+}
