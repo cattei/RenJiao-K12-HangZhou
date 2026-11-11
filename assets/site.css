@@ -1194,3 +1194,124 @@ body:not(.page-home) .tag, body:not(.page-home) .kid-tag {
 /* 2026-11-11 复核补丁 A：短内容页页脚吸底 */
 body.page-kids { min-height: 100dvh; display: flex; flex-direction: column; }
 body.page-kids main.kids { flex: 1 0 auto; }
+
+/* ==========================================================================
+   2026-11-11 学生向页面头 Hero（作用仅限子页面，首页不受影响）
+   内联 SVG 插画 + 柔彩光晕 + 陪伴型文案；答题态自动收成窄带，不挤压题目。
+   ========================================================================== */
+body.page-diagnose { --content-w: 920px; }
+body.page-kids { --content-w: 880px; }
+
+.student-hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  align-items: center;
+  gap: 28px;
+  width: min(var(--content-w, 920px), calc(100% - 40px));
+  margin: 28px auto 22px;
+  padding: 34px 36px;
+  border: 1px solid #FFFFFF;
+  border-radius: 28px;
+  background-color: #FFFFFF;
+  background-image:
+    radial-gradient(420px 300px at 88% 2%, rgba(255, 228, 240, 0.78), transparent 72%),
+    radial-gradient(380px 280px at 98% 98%, rgba(224, 235, 255, 0.78), transparent 72%),
+    radial-gradient(320px 240px at 0% 100%, rgba(255, 243, 214, 0.72), transparent 72%);
+  box-shadow: 0 16px 44px rgba(27, 35, 64, 0.08);
+}
+.student-hero::before {
+  content: "";
+  position: absolute; right: 330px; top: 26px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #FFC857;
+  box-shadow: 30px 16px 0 -3px #FF7A9C, -16px 66px 0 -3px #6C7BF2;
+  pointer-events: none;
+}
+.student-hero__copy { position: relative; z-index: 1; min-width: 0; }
+.student-hero__badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  min-height: 30px; padding: 0 14px; border-radius: 100px;
+  background: #FFFFFF; border: 1px solid #E6ECF2;
+  font-size: 12px; font-weight: 700; color: var(--brand-strong);
+  box-shadow: 0 4px 14px rgba(27, 35, 64, 0.05);
+}
+.student-hero__badge svg { width: 14px; height: 14px; flex: none; }
+.student-hero h1 {
+  margin: 14px 0 10px;
+  font-size: clamp(28px, 3.2vw, 38px); line-height: 1.28;
+  font-weight: 700; letter-spacing: -0.02em; color: var(--text);
+}
+.student-hero h1 em { font-style: normal; color: var(--brand-strong); }
+.student-hero p { margin: 0; max-width: 34em; font-size: 15px; line-height: 1.8; color: var(--muted); }
+.student-hero__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.student-hero__actions .btn { min-height: 44px; padding: 0 22px; font-size: 14px; }
+.student-hero__art {
+  position: relative; z-index: 1;
+  padding: 12px; border-radius: 24px;
+  background: #FFFAF2; border: 1px solid #F0EDE4;
+  box-shadow: 0 12px 30px rgba(27, 35, 64, 0.08);
+}
+.student-hero__art svg { display: block; width: 100%; height: auto; }
+.student-hero--kids .student-hero__art { background: #F5F7FF; border-color: #E6EAFB; }
+.student-hero--history .student-hero__art { background: #FFFAF0; border-color: #F6E9CF; }
+
+/* 诊断页进入答题 / 结果态：Hero 自动收成一条标题带 */
+body.page-diagnose:has(#root .q-text) .student-hero,
+body.page-diagnose:has(#root .q-title) .student-hero {
+  grid-template-columns: minmax(0, 1fr);
+  width: min(var(--content-w, 920px), calc(100% - 40px));
+  margin: 16px auto 14px; padding: 12px 24px; border-radius: 20px;
+}
+body.page-diagnose:has(#root .q-text) .student-hero__art,
+body.page-diagnose:has(#root .q-title) .student-hero__art,
+body.page-diagnose:has(#root .q-text) .student-hero p,
+body.page-diagnose:has(#root .q-title) .student-hero p,
+body.page-diagnose:has(#root .q-text) .student-hero__actions,
+body.page-diagnose:has(#root .q-title) .student-hero__actions,
+body.page-diagnose:has(#root .q-text) .student-hero__badge,
+body.page-diagnose:has(#root .q-title) .student-hero__badge { display: none; }
+body.page-diagnose:has(#root .q-text) .student-hero h1,
+body.page-diagnose:has(#root .q-title) .student-hero h1 {
+  margin: 0; font-size: 20px; line-height: 1.4;
+}
+body.page-diagnose:has(#root .q-text) .student-hero h1 br,
+body.page-diagnose:has(#root .q-title) .student-hero h1 br { display: none; }
+
+@media (prefers-color-scheme: dark) {
+  .student-hero { background-color: var(--bg-elev); border-color: var(--line); }
+  .student-hero__badge, .student-hero__art { background: var(--bg-muted); border-color: var(--line); }
+  .student-hero__badge { color: var(--brand-strong); }
+}
+@media (max-width: 900px) {
+  .student-hero { grid-template-columns: minmax(0, 1fr); padding: 26px 24px; }
+  .student-hero__art { max-width: 320px; }
+  .student-hero::before { display: none; }
+}
+@media (max-width: 640px) {
+  .student-hero {
+    width: calc(100% - 24px); margin: 16px auto 14px;
+    padding: 22px 18px; border-radius: 22px; gap: 18px;
+  }
+  .student-hero h1 { font-size: 26px; }
+  .student-hero p { font-size: 14px; }
+  .student-hero__actions .btn { padding: 0 16px; font-size: 13px; }
+  body.page-diagnose:has(#root .q-text) .student-hero,
+  body.page-diagnose:has(#root .q-title) .student-hero {
+    width: calc(100% - 24px); padding: 10px 16px;
+  }
+}
+
+/* 2026-11-11 复核补丁 D：答题态窄带标题间距 + 插画卡 hover 微交互 */
+body.page-diagnose:has(#root .q-text) .student-hero h1 em,
+body.page-diagnose:has(#root .q-title) .student-hero h1 em { margin-left: 10px; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .student-hero__art { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+  .student-hero__art:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 38px rgba(27, 35, 64, 0.13);
+  }
+  .student-hero__actions .btn { transition: transform 0.18s ease, box-shadow 0.18s ease; }
+  .student-hero__actions .btn:hover { transform: translateY(-2px); }
+}

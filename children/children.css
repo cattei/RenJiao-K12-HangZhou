@@ -160,3 +160,50 @@ main.kids { width: min(880px, 100%); padding: 28px 20px 64px; }
   .kid-tabs .stage-tab { background: var(--bg-elev); border-color: var(--line); }
   .kid-tabs .stage-tab.on { background: var(--brand); color: var(--on-brand); }
 }
+
+/* ==========================================================================
+   2026-11-11 档案页学生向细节：彩色顶边、装饰圆点、柔彩空状态
+   ========================================================================== */
+.page-kids .kid-card, .page-kids .kid-form, .page-kids .kid-backup { position: relative; }
+.page-kids .kid-card::after {
+  content: "";
+  position: absolute; top: 18px; right: 20px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #FFC857;
+  box-shadow: -18px 0 0 -2px #FF7A9C, -36px 0 0 -3px #6C7BF2;
+  pointer-events: none;
+}
+.page-kids .kid-form { border-top: 4px solid #6C7BF2; }
+.page-kids .kid-backup { border-top: 4px solid #FFC857; }
+.page-kids .kid-form h2::before, .page-kids .kid-backup h2::before {
+  content: ""; display: inline-block;
+  width: 10px; height: 10px; border-radius: 3px;
+  margin-right: 9px; background: var(--brand); vertical-align: 1px;
+}
+.page-kids .kid-empty {
+  position: relative; padding-left: 58px;
+  background-image: radial-gradient(200px 90px at 96% 0%, rgba(255, 255, 255, 0.65), transparent 74%);
+}
+.page-kids .kid-empty::before {
+  content: "";
+  position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; border-radius: 10px;
+  background: #FFFFFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%232AA88C' d='M8 1.5l1.8 3.9 4.2.5-3.1 2.9.8 4.2L8 10.9l-3.7 2.1.8-4.2L2 5.9l4.2-.5L8 1.5z'/%3E%3C/svg%3E") no-repeat center / 16px;
+  box-shadow: 0 4px 12px rgba(27, 35, 64, 0.08);
+}
+.page-kids .kid-tag { padding-left: 16px; }
+.page-kids .kid-tag::before {
+  content: ""; display: inline-block;
+  width: 5px; height: 5px; border-radius: 50%;
+  margin-right: 5px; background: currentColor; vertical-align: 2px; opacity: 0.6;
+}
+.page-kids .wk-name { color: var(--brand-strong); }
+
+@media (prefers-color-scheme: dark) {
+  .page-kids .kid-empty::before { background-color: var(--bg-elev); }
+}
+@media (max-width: 640px) {
+  .page-kids .kid-card::after { display: none; }
+  .page-kids .kid-empty { padding-left: 50px; }
+  .page-kids .kid-empty::before { left: 14px; }
+}

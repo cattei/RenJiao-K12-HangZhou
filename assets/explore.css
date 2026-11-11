@@ -392,3 +392,45 @@ body.page-explore .site-footer { flex: none; }
 .page-explore .graph-empty .btn-primary {
   align-self: center; width: auto; margin-top: 14px; padding: 12px 26px;
 }
+
+/* ==========================================================================
+   2026-11-11 图谱页紧凑引导条：学生向的「探索模式」入口，不挤压三栏高度
+   ========================================================================== */
+.explore-intro {
+  flex: none;
+  display: flex; align-items: center; gap: 16px;
+  margin: 14px 16px 0; padding: 12px 18px;
+  border: 1px solid #EEF0F6; border-radius: 20px;
+  background-color: #FFFFFF;
+  background-image: radial-gradient(320px 130px at 96% 0%, rgba(232, 247, 242, 0.75), transparent 74%);
+  box-shadow: 0 8px 26px rgba(27, 35, 64, 0.05);
+}
+.explore-intro__icon { flex: none; }
+.explore-intro__icon svg { display: block; width: 52px; height: 52px; }
+.explore-intro__copy { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.explore-intro__eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--brand-strong); }
+.explore-intro__copy strong { font-size: 16px; font-weight: 700; color: var(--text); }
+.explore-intro__copy > span:last-child { font-size: 12px; color: var(--muted); }
+.explore-intro__legend { display: flex; flex: none; gap: 8px; }
+.mini-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 100px;
+  background: #F7F8FC; font-size: 11px; font-weight: 700; color: var(--muted);
+  white-space: nowrap;
+}
+.mini-chip i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+
+@media (prefers-color-scheme: dark) {
+  .explore-intro { background-color: var(--bg-elev); border-color: var(--line); }
+  .mini-chip { background: var(--bg-muted); }
+}
+@media (max-width: 900px) {
+  .explore-intro { margin: 10px 12px 0; }
+  .explore-intro__legend { display: none; }
+}
+@media (max-width: 640px) {
+  .explore-intro { margin: 8px 8px 0; padding: 10px 12px; gap: 10px; }
+  .explore-intro__icon svg { width: 40px; height: 40px; }
+  .explore-intro__copy strong { font-size: 14px; }
+  .explore-intro__copy > span:last-child { font-size: 11px; }
+}
