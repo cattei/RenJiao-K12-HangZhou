@@ -1,5 +1,6 @@
 /* 首页：统计、学科卡片、年级入口全部从 data/*.json 实时计算，不写死数量。
-   2026-11-05：以线上 10 学科版本为基线重做视觉层，保留全部学科逻辑与本机盲区。 */
+   2026-11-05：以线上 10 学科版本为基线重做视觉层，保留全部学科逻辑与本机盲区。
+   2026-11-11：并入上游的加载重试、题库失败降级、初中语文/道法年级入口与需重测状态。 */
 (function () {
   'use strict';
   var raw = location.hash.replace(/^#/, '');
@@ -10,9 +11,9 @@
   var KEYS = ['math', 'chinese', 'science', 'morality', 'history', 'geography', 'biology', 'chemistry', 'english', 'physics'];
   var SUBJECTS = {
     math:      { name: '数学',       color: '#2AA88C', chip: '小学 → 高中 · 十科同步',               demo: 'diagnose/?target=cnm_221&demo=1', desc: '配方法' },
-    chinese:   { name: '语文',       color: '#FF7A9C', chip: '小学一至六年级 · 统编版',            demo: 'diagnose/?subject=chinese&grade=' + encodeURIComponent('一上') + '&demo=1', desc: '一年级上册语文' },
+    chinese:   { name: '语文',       color: '#FF7A9C', chip: '小学一至六年级 · 初中七至九年级 · 统编版',            demo: 'diagnose/?subject=chinese&grade=' + encodeURIComponent('一上') + '&demo=1', desc: '一年级上册语文' },
     science:   { name: '科学',       color: '#22B8CF', chip: '小学一至六年级 · 教科版',            demo: 'diagnose/?subject=science&grade=' + encodeURIComponent('一上') + '&demo=1', desc: '一年级上册科学' },
-    morality:  { name: '道德与法治', color: '#FB8B5C', chip: '小学一至六年级 · 统编版',            demo: 'diagnose/?subject=morality&grade=' + encodeURIComponent('一上') + '&demo=1', desc: '一年级上册道德与法治' },
+    morality:  { name: '道德与法治', color: '#FB8B5C', chip: '小学与初中 · 统编版（初中含七上至八下）',            demo: 'diagnose/?subject=morality&grade=' + encodeURIComponent('一上') + '&demo=1', desc: '一年级上册道德与法治' },
     history:   { name: '历史',       color: '#A78BFA', chip: '初中七至九年级 · 统编版',            demo: 'diagnose/?subject=history&grade=' + encodeURIComponent('七上') + '&demo=1', desc: '七年级上册历史' },
     geography: { name: '地理',       color: '#34B57A', chip: '初中七至八年级 · 人教版',            demo: 'diagnose/?subject=geography&grade=' + encodeURIComponent('七上') + '&demo=1', desc: '七年级上册地理' },
     biology:   { name: '生物',       color: '#8CC63F', chip: '初中七至八年级 · 人教版',            demo: 'diagnose/?subject=biology&grade=' + encodeURIComponent('七上') + '&demo=1', desc: '七年级上册生物' },
@@ -105,8 +106,8 @@
       li.appendChild(name);
       var meta = document.createElement('span');
       meta.className = 'blind-home-meta';
-      var bits = [row.status === 'weak' ? (row.root ? '根因' : '薄弱') : '不稳'];
-      if (row.wrongs) bits.push('答错 ' + row.wrongs + ' 次');
+      var bits = [row.status === 'weak' ? (row.root ? '根因' : '薄弱') : (row.status === 'retest' ? '需重测' : '不稳')];
+      if (row.wrongs && row.status !== 'retest') bits.push('答错 ' + row.wrongs + ' 次');
       meta.textContent = bits.join(' · ');
       li.appendChild(meta);
       list.appendChild(li);
@@ -128,22 +129,48 @@
     }
   }
 
-  Promise.all([
-    fetch('data/topics.json'),
-    fetch('data/dependencies.json'),
-    fetch('data/questions.json'),
-    fetch('data/cn-curriculum-standards.json')
-  ]).then(function (responses) {
-    responses.forEach(function (response) {
-      if (!response.ok) throw new Error('HTTP ' + response.status);
+  /* 同 URL 最多 2 次尝试；进行中的 Promise 去重（上游 2026-11-07 弱网修复）。 */
+  var fetchInflight = {};
+  function fetchJsonWithRetry(url, attempts) {
+    attempts = attempts || 2;
+    if (fetchInflight[url]) return fetchInflight[url];
+    var run = (function tryOnce(left) {
+      return fetch(url).then(function (response) {
+        if (!response.ok) {
+          var httpErr = new Error('HTTP ' + response.status);
+          httpErr.noRetry = true;
+          throw httpErr;
+        }
+        return response.json();
+      }).catch(function (err) {
+        if (err && err.noRetry) throw err;
+        if (left > 1) return tryOnce(left - 1);
+        throw err;
+      });
+    })(attempts);
+    fetchInflight[url] = run.then(function (payload) {
+      delete fetchInflight[url];
+      return payload;
+    }, function (err) {
+      delete fetchInflight[url];
+      throw err;
     });
-    return Promise.all(responses.map(function (response) { return response.json(); }));
-  }).then(function (data) {
+    return fetchInflight[url];
+  }
+
+  /* 十科卡片的题目数需要全量题库，仍一次性加载；但题库失败时只把题目数降级成 —，
+     不再让统计、学科卡片和年级入口一起失败。 */
+  Promise.all([
+    fetchJsonWithRetry('data/topics.json', 2),
+    fetchJsonWithRetry('data/dependencies.json', 2),
+    fetchJsonWithRetry('data/questions.json', 2).catch(function () { return null; }),
+    fetchJsonWithRetry('data/cn-curriculum-standards.json', 2)
+  ]).then(function (data) {
     var allTopics = data[0];
     var allDeps = data[1];
-    var allQuestions = data[2];
+    var allQuestions = Array.isArray(data[2]) ? data[2] : null;
     var standards = data[3];
-    if (!Array.isArray(allTopics) || !Array.isArray(allDeps) || !Array.isArray(allQuestions)) {
+    if (!Array.isArray(allTopics) || !Array.isArray(allDeps)) {
       throw new Error('数据格式无法识别');
     }
     var allItems = standards && Array.isArray(standards.items) ? standards.items : [];
@@ -166,28 +193,29 @@
     /* 十科合计（stat-grid） */
     setText('n-topics', String(allTopics.length));
     setText('n-edges', String(allDeps.length));
-    setText('n-questions', String(allQuestions.length));
+    setText('n-questions', allQuestions ? String(allQuestions.length) : '—');
     setText('n-standards', String(allItems.length));
 
     /* 十张学科卡片的数字 */
     KEYS.forEach(function (key) {
       var count = allTopics.filter(function (t) { return (t.subject || subjectOfId(t.id)) === key; }).length;
-      var questions = allQuestions.filter(function (q) { return (q.subject || subjectOfId(q.topicId)) === key; }).length;
+      var questions = allQuestions ? allQuestions.filter(function (q) { return (q.subject || subjectOfId(q.topicId)) === key; }).length : null;
       var c = document.querySelector('[data-subject-count="' + key + '"]');
       var q = document.querySelector('[data-subject-questions="' + key + '"]');
       if (c) c.textContent = String(count);
-      if (q) q.textContent = String(questions);
+      if (q) q.textContent = questions === null ? '—' : String(questions);
     });
 
     /* 当前学科统计（原有按学科筛选逻辑，保留在说明行） */
     var curTopics = allTopics.filter(function (t) { return (t.subject || subjectOfId(t.id)) === subject; });
     var curDeps = allDeps.filter(function (e) { return subjectOfId(e.topicId) === subject; });
-    var curQuestions = allQuestions.filter(function (q) { return subjectOfId(q.topicId) === subject; });
+    var curQuestions = allQuestions ? allQuestions.filter(function (q) { return subjectOfId(q.topicId) === subject; }) : [];
     var curItems = allItems.filter(function (i) { return subjectOfStd(i.id) === subject; });
     var note = document.getElementById('stat-current');
     if (note) {
       note.textContent = '当前学科 · ' + info.name + '：' + curTopics.length + ' 个知识点 · ' +
-        curDeps.length + ' 条先修边 · ' + curQuestions.length + ' 道题 · ' + curItems.length + ' 条课标条目。';
+        curDeps.length + ' 条先修边 · ' + (allQuestions ? curQuestions.length + ' 道题' : '题目数 —') +
+        ' · ' + curItems.length + ' 条课标条目。';
     }
 
     /* ---- 年级入口：按小学 / 初中 / 高中三段生成，保留线上各学科范围 ---- */
@@ -199,6 +227,7 @@
     var wantPhysics = subject === 'physics';
     var wantEnglish = subject === 'english';
     var wantChinese = subject === 'chinese' || subject === 'science' || subject === 'morality';
+    var wantPrimaryOnly = subject === 'science'; /* 上游 2026-11：语文与道法已录入初中 */
     var wantHistory = subject === 'history';
     var wantGeography = subject === 'geography';
     var wantBiology = subject === 'biology';
@@ -211,6 +240,7 @@
 
     function push(stage, grade, title, href) {
       var count = curTopics.filter(function (topic) { return topic.grade === grade; }).length;
+      if (subject === 'morality' && !count) return; /* 九年级未录入，不画空卡片 */
       groups.forEach(function (group) {
         if (group.key === stage) group.cards.push({ title: title, count: count, href: href });
       });
@@ -219,7 +249,7 @@
       return subject !== 'math' ? 'explore/?subject=' + subject + '&grade=' + g : 'explore/?grade=' + g;
     }
     var from = wantPhysics ? 8 : (wantEnglish ? 3 : (wantChemistry ? 9 : (wantHistory || wantGeography || wantBiology ? 7 : 1)));
-    var to = wantChinese ? 6 : (wantChemistry ? 9 : (wantGeography || wantBiology ? 8 : 9));
+    var to = wantPrimaryOnly ? 6 : (wantChemistry ? 9 : (wantGeography || wantBiology ? 8 : 9));
     for (var g = from; g <= to; g++) {
       push(g <= 6 ? 'primary' : 'junior', g, CN[g] + '年级', gradeHref(g));
     }
@@ -236,7 +266,7 @@
 
     var RANGE = {
       primary: wantEnglish ? '三 – 六年级' : '一 – 六年级',
-      junior: wantChemistry ? '九年级' : (wantPhysics ? '八 – 九年级' : (wantGeography || wantBiology ? '七 – 八年级' : '七 – 九年级')),
+      junior: subject === 'morality' ? '七 – 八年级（九年级未录入）' : (wantChemistry ? '九年级' : (wantPhysics ? '八 – 九年级' : (wantGeography || wantBiology ? '七 – 八年级' : '七 – 九年级'))),
       senior: '必修 + 选必'
     };
     groups.forEach(function (group) {
