@@ -1,5 +1,15 @@
 # 变更日志
 
+- 2026-11-11：数学四上 3 个旧版知识点按用户拍板「A 保留 + 标注」结案，同步口径文档与 README，提交后推送。
+  - 起点：`b8cdc1d`，`git fetch` 后与 `origin/main` 为 `0/0`。上一轮杭州多源对齐的口径文档、比对工具、2 个知识点课标映射与 `参考/` 忽略规则已在 `555a56e`（2026-11-05 第二批）提交推送；其后的 `55b0891`（站点命名）、`b8cdc1d`（PWA 缓存 v8→v9）与本轮文件无重叠。
+  - `data/topics.json`：仅给 `cnm_p106`（除数是两位数的除法）、`cnm_p107`（商不变的规律）、`cnm_p131`（鸡兔同笼）的 `standards[0].note` 追加同一句「2026-11-05 已比对杭州《4年级上册（2022课标修订版）》教材 PDF 目录，该册无本单元；按 2026 秋教辅暂留，待修订版四下发行后复判。」；`cnm_p131` 原有「按 2026 秋教辅由四下迁入新版四上，待核」来源注记原样保留、新句追加在后。变更前后 `chapter`、题库（12579 题）、先修边（4625 条）、`confidence`、知识点总数（3108）全部不变；diff 仅 5 行增 / 3 行删。图谱页与诊断页会把该句渲染为「说明」，标注写在 `note` 而非 `chapter`，不改变比对工具的单元判定；`scripts/g4_grade_align.py` 不重写 `standards`，重跑不会丢失标注。
+  - `docs/hangzhou-alignment.md`：第 3 节冲突 #4 裁决由「待人工确认 / 本轮不动」改为「已拍板 A：保留 + 标注」（2026-11-11）；第 5 节由「待确认」改为「已确认：保留」，记录结论、决策依据、A/B/C 三方案取舍与复判触发条件（修订版四下 PDF 出现，或 `教材清单.csv` 中四下版本口径由「旧课标版」改为「2022 课标修订版」）；第 4 节补记本轮标注。
+  - `README.md`：两处过时表述（「章节树改动待确认」「仅剩数学四上 3 个旧版知识点待人工确认」）改为已拍板保留并标注，保持上级定义文档与裁决文档口径一致。
+  - 未采用 B（迁移）/ C（删除）的依据：`教材清单.csv` 显示四下仍为「旧课标版」，修订版四下未发行，最终归属不可判；迁移需同步改 `dependencies.json`、`questions.json`、生成脚本与 README 统计，删除不可逆且会丢失课标要求的「除数是两位数的除法」。
+  - 备份：`../_bak_code_四上保留标注_20261111/`（4 个文件：`topics.json`、`docs/hangzhou-alignment.md`、`README.md`、`CHANGELOG.md`），改动前 `cmp` 逐字节校验一致。
+  - 验收：`scripts/validate.py` 常规与 `STRICT_STANDARDS=1` 严格模式均 `VALIDATION PASSED`；`scripts/align_hangzhou.py` 复跑输出「册次 56、代码单元 321、命中 283（88.2%）、未命中 38」；13 个 `data/*.json` 全部可解析；`git diff --check` 无空白错误。
+  - 回滚（在 `code/` 目录执行，推送后同样有效）：`git checkout b8cdc1d -- data/topics.json docs/hangzhou-alignment.md README.md CHANGELOG.md && git commit -m "revert: 撤销数学四上保留标注" && git push`；或用备份覆盖 `cp "../_bak_code_四上保留标注_20261111/topics.json" data/topics.json && cp "../_bak_code_四上保留标注_20261111/docs/hangzhou-alignment.md" docs/hangzhou-alignment.md && cp "../_bak_code_四上保留标注_20261111/README.md" README.md && cp "../_bak_code_四上保留标注_20261111/CHANGELOG.md" CHANGELOG.md`。改动前基线 `b8cdc1d`。
+
 - 2026-11-05（第二批）：把杭州材料库明确为「持续更新的活数据源」，并连同杭州教材多源对齐工作一起上线。
   - `README.md`：删掉会过时的快照数字（材料库文件数、试卷份数、知识点合计），改为引用 `杭州人教版小学/README.md` 与 `教材清单.csv` / `学习材料清单.csv`，图谱规模改为「以首页四卡实时统计为准」；新增「材料是活数据源，README 不写死快照」小节，写明维护约定与 **P1 教材 PDF 目录 > P2 教材清单 > P3 学习材料目录树 > P4 平台课时树** 的来源优先级；补上杭州临平区口径（科学教科版）、2022 课标修订版优先、人教鄂教版科学移入 `_备选版本/` 等已核实事实。
   - `docs/hangzhou-alignment.md`（新）：以《杭州人教版小学》为准更新 `data/topics.json` 的口径定义与裁决记录；明确四个来源的优先级与已知问题，P4 平台课时树指向人教鄂教版、数学四/五/六上仍是旧课标版，均不可作权威源；P2 决定每册该用「2022 课标修订版」还是「旧课标版」。
