@@ -1,4 +1,18 @@
 # 变更日志
+- 2026-11-11：停用第三方访问统计上报，并把面向用户的外链统一指向本仓库。
+  - 起点 `dc5542a`（线上同步、工作树干净）。上游合并带入的 `assets/stats-config.js` 把 `endpoint` 指向上游作者自建的 Cloudflare Worker（`math-pansgo-stats.xiaokunfeng310.workers.dev/collect`），5 个页面引用；本机不可达且存在数据外流到第三方域名的问题。现置为空串——`stats.js` 中 `if (cfg.endpoint)` 为空即不发 `sendBeacon` / `fetch`，本地 `cnm:track` 事件与 PWA 回访统计仍照常工作。**GitHub 仓库地址不是采集端点，不能填进 `endpoint`。**
+  - 归属统一到 `https://github.com/cattei/RenJiao-K12-HangZhou`：诊断页报错入口 `ISSUE_NEW_URL`（保留 `question-fix.yml` 模板，本仓库已有该模板）、结果页 `iq-line` 引流、分享图二维码 `SHARE_URL` 与「扫码打开本站」文案、PWA 引导图两处域名文字、首页页脚「资源搜索」改为「源码」；同步更新 `tests/test_report_link.js`、`scripts/screenshot.js` 的期望值与 `diagnose/README.md`、README 的相关描述。`scripts/screenshot.js` 中 `top-banner` / `iq-card` 两组断言针对上游页面的引流元素，本地十科视觉版早已没有对应元素，属上游遗留；本轮只同步了其中的 URL 与结果页文案，未改动这两组已失效的断言逻辑。
+  - README：新增「本仓库」徽章，原在线试用徽章改为「上游在线演示」，演示链接统一标注「上游」，部署章节注明生产站点属上游项目、本 fork 不部署到该域名；「本仓库的独有内容」补记外链与统计端点口径。
+  - **保留不改**：CC BY-NC 4.0 许可、原作者署名与商用授权联系方式（合规要求）、已标注「上游」的 Pages 备份链接、fork 来源与 `upstream` 远端说明、`docs/feedback-*` 中的上游历史记录。
+  - 备份：`../_bak_code_外链归属_20261111/`（10 个文件 + `_snapshot.json` SHA256 快照）。
+  - 回滚（在 `code/` 下执行，二选一）：
+    ```bash
+    # A. 用改动前备份整体覆盖
+    cp -r ../_bak_code_外链归属_20261111/. ./ && rm -f ./_snapshot.json
+    # B. 按提交回滚（仅当本条是最新提交时）
+    git revert <本次提交SHA>
+    ```
+
 
 - 2026-11-11：学生向重设计（四个子页面按设计稿语言重做，不只是配色对齐）。
   - 起点 `8e1e155`（含上游同步 25 个提交）；本条改动先本地提交 `a795df8`，再 `git pull --rebase origin main` 变基合并，与上游的题库/CI/侧栏折叠改动无逻辑冲突。上一轮只统一了配色与圆角，页面本质仍是「教研工具界面」：白卡加长段文字、无插画、无情绪、对学生吸引力不足。本轮按最初首页设计稿的语言重做。

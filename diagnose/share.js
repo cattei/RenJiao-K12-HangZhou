@@ -1,7 +1,7 @@
 /* 诊断结果分享图：canvas 竖图，系统字体，二维码用本地 qrcode-generator 绘制。 */
 (function (global) {
   'use strict';
-  var SHARE_URL = 'https://math.pansgo.com/?from=share';
+  var SHARE_URL = 'https://github.com/cattei/RenJiao-K12-HangZhou';
   var W = 1080;
   var H = 1920;
   var FONT = '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", "Source Han Sans SC", sans-serif';
@@ -252,7 +252,7 @@
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#0f766e';
     ctx.font = font(800, 48);
-    ctx.fillText('扫码打开本站', qrX + qrSize + 48, qrY + qrSize / 2 - 8);
+    ctx.fillText('扫码查看项目源码', qrX + qrSize + 48, qrY + qrSize / 2 - 8);
     return canvas;
   }
 

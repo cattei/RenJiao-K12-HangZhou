@@ -7,6 +7,8 @@ const root = path.join(__dirname, '..');
 const appSrc = fs.readFileSync(path.join(root, 'diagnose/app.js'), 'utf8');
 const cssSrc = fs.readFileSync(path.join(root, 'diagnose/style.css'), 'utf8');
 assert.ok(appSrc.includes('ISSUE_NEW_URL'));
+assert.ok(!appSrc.includes('xiaoyang111222'), '纠错链接不得指向上游仓库');
+assert.ok(!appSrc.includes('test.pansgo.com'), '不得保留第三方引流');
 assert.ok(appSrc.includes('function reportUrl(q)'));
 assert.ok(appSrc.includes('这道题有错？报错'));
 assert.ok(appSrc.includes('report-link no-print'));
@@ -14,7 +16,7 @@ assert.ok(appSrc.includes("encodeURIComponent('[题目] ' + q.id)"));
 assert.ok(appSrc.includes('encodeURIComponent(q.id)'));
 assert.ok(appSrc.includes("q.id ? h('div', { class: 'report-link no-print' }"));
 function reportUrl(q) {
-  return 'https://github.com/xiaoyang111222/cn-math-taxonomy/issues/new?template=question-fix.yml&title=' +
+  return 'https://github.com/cattei/RenJiao-K12-HangZhou/issues/new?template=question-fix.yml&title=' +
     encodeURIComponent('[题目] ' + q.id) + '&question_id=' + encodeURIComponent(q.id);
 }
 const weird = 'cnm_1_q1 &x# y';

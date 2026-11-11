@@ -887,7 +887,7 @@
     return q.answer;
   }
 
-  const ISSUE_NEW_URL = 'https://github.com/xiaoyang111222/cn-math-taxonomy/issues/new';
+  const ISSUE_NEW_URL = 'https://github.com/cattei/RenJiao-K12-HangZhou/issues/new';
 
   function reportUrl(q) {
     return ISSUE_NEW_URL + '?template=question-fix.yml&title=' + encodeURIComponent('[题目] ' + q.id) +
@@ -1297,12 +1297,12 @@
     page.append(standardsCard(sum));
     page.append(logCard());
     page.append(h('p', { class: 'iq-line', id: 'iq-line' },
-      '做完数学诊断，再测测思维能力？→ ',
+      '想了解本项目、反馈题目或提建议？→ ',
       h('a', {
-        href: 'https://test.pansgo.com/?from=math-result',
+        href: 'https://github.com/cattei/RenJiao-K12-HangZhou',
         target: '_blank',
-        rel: 'noopener',
-        text: '儿童智商测试'
+        rel: 'noopener noreferrer',
+        text: '孙开元学习记录 · 源码'
       })));
     show(page);
     mountPathGraph(sum);

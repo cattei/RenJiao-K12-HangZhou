@@ -13,7 +13,7 @@
  *      检查局部图、无横向溢出、无外网脚本/样式/字体/图片请求，并截 06–16；
  *   4) 知识图谱「全部」祖先（cnm_234：默认按年级收起，再展开并对准当前点）、375 宽长名称（cnm_124）
  *      以及 375 宽诊断路径图，截 17–20。
- *      首页儿童智商测试卡片截 36，诊断结果页底部入口截 37。
+ *      首页儿童智商测试卡片截 36（上游遗留，本地十科版无此卡片），诊断结果页底部入口截 37（现指向本仓库）。
  *      全站顶部横幅：1280 首页顶部截 41-top-banner.png，375 截 42-top-banner-375.png。
  *      诊断分享图：数学（五年级上册）存 38-share-math.png，英语（现在进行时）存 39-share-en.png，
  *      375 宽弹层存 40-share-modal-375.png，并用 jsQR 解码图中二维码。
@@ -32,7 +32,7 @@ const http = require('http');
 const zlib = require('zlib');
 const E = require('../diagnose/engine.js');
 const jsQR = require('./vendor/jsQR.js');
-const SHARE_URL = 'https://math.pansgo.com/?from=share';
+const SHARE_URL = 'https://github.com/cattei/RenJiao-K12-HangZhou';
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'screenshots');
@@ -57,7 +57,7 @@ const TOP_BANNER_EXPR = `(() => {
   if (!a) return 'missing';
   const rel = (a.getAttribute('rel') || '').split(/\\s+/);
   const text = (a.textContent || '').replace(/\\s+/g, ' ').trim();
-  if (a.getAttribute('href') !== 'https://test.pansgo.com/?from=math-top') return 'href';
+  if (a.getAttribute('href') !== 'https://github.com/cattei/RenJiao-K12-HangZhou') return 'href';
   if (a.target !== '_blank') return 'target';
   if (rel.indexOf('noopener') < 0) return 'rel';
   if (text !== '🧠 儿童智商测试') return 'text:' + text;
@@ -86,7 +86,7 @@ const TOP_BANNER_EXPR = `(() => {
     if (navLinks[i].getBoundingClientRect().height + 0.5 < 44) return 'nav-short';
   }
   const card = document.querySelector('a.iq-card');
-  if (card && card.getAttribute('href') !== 'https://test.pansgo.com/?from=math-home') return 'card-href';
+  if (card && card.getAttribute('href') !== 'https://github.com/cattei/RenJiao-K12-HangZhou') return 'card-href';
   return 'ok';
 })()`;
 const IQ_HOME_EXPR = `(() => {
@@ -94,7 +94,7 @@ const IQ_HOME_EXPR = `(() => {
   if (!a) return 'missing';
   const rel = (a.getAttribute('rel') || '').split(/\\s+/);
   const text = a.textContent || '';
-  if (a.getAttribute('href') !== 'https://test.pansgo.com/?from=math-home') return 'href';
+  if (a.getAttribute('href') !== 'https://github.com/cattei/RenJiao-K12-HangZhou') return 'href';
   if (a.target !== '_blank') return 'target';
   if (rel.indexOf('noopener') < 0) return 'rel';
   if (text.indexOf('儿童智商测试') < 0 || text.indexOf('找规律 · 补图案 · 空间想象') < 0 || text.indexOf('趣味测评，与数学诊断无关') < 0) return 'text';
@@ -107,12 +107,12 @@ const IQ_RESULT_EXPR = `(() => {
   if (!line || !a) return 'missing';
   const page = document.getElementById('root') && document.getElementById('root').lastElementChild;
   if (!page || page.lastElementChild !== line) return 'not-last';
-  if (a.getAttribute('href') !== 'https://test.pansgo.com/?from=math-result') return 'href';
+  if (a.getAttribute('href') !== 'https://github.com/cattei/RenJiao-K12-HangZhou') return 'href';
   if (a.target !== '_blank') return 'target';
   if ((a.getAttribute('rel') || '').split(/\\s+/).indexOf('noopener') < 0) return 'rel';
   const compact = (line.textContent || '').replace(/\\s+/g, '');
-  if (compact !== '做完数学诊断，再测测思维能力？→儿童智商测试') return 'text:' + compact;
-  if (a.textContent !== '儿童智商测试') return 'link-text';
+  if (compact !== '想了解本项目、反馈题目或提建议？→孙开元学习记录·源码') return 'text:' + compact;
+  if (a.textContent !== '孙开元学习记录 · 源码') return 'link-text';
   return 'ok';
 })()`;
 const DERIVE = TOPIC_ROWS.find((t) => t.name === '导数的概念' && t.grade === 13);
@@ -612,7 +612,7 @@ async function main() {
     check(await exists('#shaky details.topic') && await exists('#path .tag.shaky'), '「不稳」的点单独列出，并出现在学习路径里');
     await shot('03-result.png');
     const iqResult = await evalJs(IQ_RESULT_EXPR);
-    check(iqResult === 'ok', '诊断结果页底部有儿童智商测试入口（' + iqResult + '）');
+    check(iqResult === 'ok', '诊断结果页底部有本仓库入口（' + iqResult + '）');
     await shot('37-result-iq.png', '#iq-line', 160);
     await checkPathGraph('演示结果页');
     // 路径图单独存一张便于检查
