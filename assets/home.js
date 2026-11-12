@@ -13,7 +13,7 @@
     math:      { name: '数学',       color: '#2AA88C', chip: '小学 → 高中 · 十科同步',               demo: 'diagnose/?target=cnm_221&demo=1', desc: '配方法' },
     chinese:   { name: '语文',       color: '#FF7A9C', chip: '小学一至六年级 · 初中七至九年级 · 统编版',            demo: 'diagnose/?subject=chinese&grade=' + encodeURIComponent('一上') + '&demo=1', desc: '一年级上册语文' },
     science:   { name: '科学',       color: '#22B8CF', chip: '小学一至六年级 · 教科版',            demo: 'diagnose/?subject=science&grade=' + encodeURIComponent('一上') + '&demo=1', desc: '一年级上册科学' },
-    morality:  { name: '道德与法治', color: '#FB8B5C', chip: '小学与初中 · 统编版（初中含七上至八下）',            demo: 'diagnose/?subject=morality&grade=' + encodeURIComponent('一上') + '&demo=1', desc: '一年级上册道德与法治' },
+    morality:  { name: '道德与法治', color: '#FB8B5C', chip: '小学与初中 · 统编版',            demo: 'diagnose/?subject=morality&grade=' + encodeURIComponent('一上') + '&demo=1', desc: '一年级上册道德与法治' },
     history:   { name: '历史',       color: '#A78BFA', chip: '初中七至九年级 · 统编版',            demo: 'diagnose/?subject=history&grade=' + encodeURIComponent('七上') + '&demo=1', desc: '七年级上册历史' },
     geography: { name: '地理',       color: '#34B57A', chip: '初中七至八年级 · 人教版',            demo: 'diagnose/?subject=geography&grade=' + encodeURIComponent('七上') + '&demo=1', desc: '七年级上册地理' },
     biology:   { name: '生物',       color: '#8CC63F', chip: '初中七至八年级 · 人教版',            demo: 'diagnose/?subject=biology&grade=' + encodeURIComponent('七上') + '&demo=1', desc: '七年级上册生物' },
@@ -41,6 +41,35 @@
     if (!box) return;
     box.hidden = false;
     box.textContent = message;
+  }
+
+  /* 上游 2026-11-12 合并：道法初中册次改由 data/topics.json 实时计算。
+     上游本轮录入九上 21 点、九下未建，写死的「九年级未录入」已与数据不符。
+     本地十科 Bento 下把这段说明放在统计说明行与学段范围里，不撑长 hero chip。 */
+  function moralityJuniorSummary(topicList) {
+    var vols = [
+      [7, '上', '七上'], [7, '下', '七下'],
+      [8, '上', '八上'], [8, '下', '八下'],
+      [9, '上', '九上'], [9, '下', '九下']
+    ];
+    var has = {};
+    (topicList || []).forEach(function (topic) {
+      if (topic.grade >= 7 && topic.grade <= 9 && (topic.semester === '上' || topic.semester === '下')) {
+        has[String(topic.grade) + topic.semester] = true;
+      }
+    });
+    var present = [];
+    vols.forEach(function (row) {
+      if (has[String(row[0]) + row[1]]) present.push(row[2]);
+    });
+    var g9 = '九年级未录入';
+    if (has['9上'] && has['9下']) g9 = '九年级上下册均已录入';
+    else if (has['9上']) g9 = '九上已录入，九下未建';
+    else if (has['9下']) g9 = '九上未录入';
+    return {
+      note: (present.length ? '初中现含' + present.join('、') : '初中册次尚未录入') + '；' + g9,
+      has9: !!(has['9上'] || has['9下'])
+    };
   }
 
   /* ---- 学科切换：类、标题、文案、链接、高亮卡片 ---- */
@@ -190,6 +219,7 @@
       return 'math';
     }
 
+
     /* 十科合计（stat-grid） */
     setText('n-topics', String(allTopics.length));
     setText('n-edges', String(allDeps.length));
@@ -211,11 +241,12 @@
     var curDeps = allDeps.filter(function (e) { return subjectOfId(e.topicId) === subject; });
     var curQuestions = allQuestions ? allQuestions.filter(function (q) { return subjectOfId(q.topicId) === subject; }) : [];
     var curItems = allItems.filter(function (i) { return subjectOfStd(i.id) === subject; });
+    var morJunior = subject === 'morality' ? moralityJuniorSummary(curTopics) : null;
     var note = document.getElementById('stat-current');
     if (note) {
       note.textContent = '当前学科 · ' + info.name + '：' + curTopics.length + ' 个知识点 · ' +
         curDeps.length + ' 条先修边 · ' + (allQuestions ? curQuestions.length + ' 道题' : '题目数 —') +
-        ' · ' + curItems.length + ' 条课标条目。';
+        ' · ' + curItems.length + ' 条课标条目。' + (morJunior ? ' ' + morJunior.note + '。' : '');
     }
 
     /* ---- 年级入口：按小学 / 初中 / 高中三段生成，保留线上各学科范围 ---- */
@@ -240,7 +271,7 @@
 
     function push(stage, grade, title, href) {
       var count = curTopics.filter(function (topic) { return topic.grade === grade; }).length;
-      if (subject === 'morality' && !count) return; /* 九年级未录入，不画空卡片 */
+      if (subject === 'morality' && !count) return; /* 无数据的册次不画空卡片 */
       groups.forEach(function (group) {
         if (group.key === stage) group.cards.push({ title: title, count: count, href: href });
       });
@@ -266,7 +297,9 @@
 
     var RANGE = {
       primary: wantEnglish ? '三 – 六年级' : '一 – 六年级',
-      junior: subject === 'morality' ? '七 – 八年级（九年级未录入）' : (wantChemistry ? '九年级' : (wantPhysics ? '八 – 九年级' : (wantGeography || wantBiology ? '七 – 八年级' : '七 – 九年级'))),
+      junior: subject === 'morality'
+        ? (morJunior && morJunior.has9 ? '七 – 九年级（九上已录入）' : '七 – 八年级（九年级未录入）')
+        : (wantChemistry ? '九年级' : (wantPhysics ? '八 – 九年级' : (wantGeography || wantBiology ? '七 – 八年级' : '七 – 九年级'))),
       senior: '必修 + 选必'
     };
     groups.forEach(function (group) {

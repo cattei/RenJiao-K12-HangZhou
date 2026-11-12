@@ -1,4 +1,29 @@
 # 变更日志
+- 2026-11-12（上游周同步）：与 fork 来源 `xiaoyang111222/cn-math-taxonomy:main` 合并 11 个新提交，逐文件裁决 2 个冲突，保留全部杭州特色与外链归属口径。
+  - 起点：`HEAD = origin/main = 3db1621d76078e49d444ee0aa44c4aec3b316241`；`git fetch` 后与 `origin/main` 为 `0/0`（无落后，未触发 stash / ff-only）。`upstream/main` 由 `f3793211de6072e2a8de926c22b909176dc72701` 推进到 `1aa28f09d8cf2f82fe04606cf2c07a2edbd46b8a`，merge-base `f3793211...`，本地独有 10 个提交。用 `git merge --no-ff upstream/main`，未使用 GitHub 网页「Discard commits」，未 `reset --hard` 丢弃本地提交。
+  - 环境注意：本机 `.git/FETCH_HEAD` 是网络同步盘的 `ReparsePoint` 云端占位文件，直接 `git fetch` 报 `cannot open '.git/FETCH_HEAD': Permission denied`（ACL 有写权限，是占位文件写入被拒）。改用 `git fetch --no-write-fetch-head origin` / `git fetch --no-write-fetch-head upstream`，远端引用正常更新、无需触碰 FETCH_HEAD。后续周同步沿用该写法。
+  - 上游 11 个提交的内容：① 按官方阅读器目录改挂七下 / 八 / 九年级英语课序并续核待核点（`a081766`、`80ce4b8`、`395a9c8`、`07b9f74`、`8d55cd6`）；② 按官方目录新增九上道法 21 点 / 84 题、改挂七至八年级 85 点、按正文补四个空框、`cnd_j103` 点名勘误（`ddfdea7`、`12ab27d`、`07941bc`、`72fc1da`）；③ 把 65 个初中英语待核点分成 `body_checked_no_lesson` / `evidence_insufficient` 两类并标 `catalog_status`（`1aa28f0`）；④ 部署脚本 Wrangler 本地缓存目录权限修复（`d4900b5`）；⑤ 配套 `docs/` 核验记录、`scripts/` 生成器、`tests/` 与 `.github/workflows/ci.yml` 新增两步。
+  - 变更前后差异：上游改动 43 个文件（`+349261 / -5727`，其中 `data/questions.json` 增 337144 行）。合并后知识点 `3421 → 3446`（+25：道法九上 21 点 + 七/八年级四个空框各 1 点）、题目 `13831 → 13931`（+100）、先修边 `4913 → 4919`（+6）、课标条目 `791 → 791`（不变）。
+  - 冲突裁决（2 个，均逐文件融合、未二选一）：
+    - `assets/home.js`：保留本地十科 Bento 的 `.subject-card` 高亮、`SUBJECTS` 表驱动学科切换、`document.title` 品牌名、四卡全量统计、`fetchJsonWithRetry`、题库失败降级、学段筛选；丢弃上游已被表驱动替代的 if/else 链与重复的 `setText`/`fail` 定义，以及引用未定义变量 `topics`/`deps`/`items` 的单学科统计块（会覆盖十科全量值）。**纳入上游 `moralityJuniorEyebrow` 的数据驱动册次逻辑**，改造为 `moralityJuniorSummary(curTopics)`，把「初中现含…；九上已录入，九下未建」写进 `#stat-current` 与学段范围，不撑长 `hero-chip`（12px 胶囊）以免 390px 溢出；`SUBJECTS.morality.chip` 去掉写死的「初中含七上至八下」。理由是上游本轮录入九上 21 点后，本地写死的「九年级未录入」已与数据不符。`push()` 跳过无数据册次的逻辑保留，道法九年级卡不再是空卡（实测 21 点）。
+    - `sw.js`：本地 `v16`、上游 `v18`，按约定取 `max(16,18)+1 = v19`。SHELL 保留本地 `assets/hero-learning.webp` 与 `webp` 缓存正则；上游本轮只改版本号、未新增 SHELL 脚本，故无需追加。
+  - 自动合并并复核的 5 个双方改动文件：`CHANGELOG.md`、`README.md`、`data/topics.json`、`diagnose/app.js`、`package.json` —— 上游条目与本地条目均在；`package.json` 正确纳入上游新增的 `test_enj_pending.py` / `test_pages_script_cache.js` 两个 CI 命令，仓库地址仍指向 `cattei/RenJiao-K12-HangZhou`。
+  - 保留的本地特色：站点命名「孙开元学习记录」、`index.html` 十科 Bento 视觉、`assets/site.css` 与各子页 CSS 末尾视觉覆盖层、`assets/home.js` 十科实时统计 / 十科卡片 / 学段筛选 / 加载重试 / 题库降级 / 初中语文道法年级入口、README 的杭州 K12 定位与「材料是活数据源，README 不写死快照」口径、`docs/hangzhou-alignment.md` 与 `scripts/align_hangzhou.py`、数学四上 `cnm_p106` / `cnm_p107` / `cnm_p131` 的保留标注、`.gitignore` 的 `参考/` 与 `align-report.md/.json` 规则、全站关于 / Issue / 仓库链接指向本仓库。
+  - **外链归属与统计端点复核（2026-11-11 定案）**：`assets/stats-config.js` 的 `endpoint` 保持空串 `''`（浏览器实测 `window.CNM_STATS.endpoint === ''`，不向第三方上报）；诊断页 `ISSUE_NEW_URL`、结果页 `iq-line`、分享图 `SHARE_URL` 与「扫码查看项目源码」文案、PWA 引导图两处水印 `cattei/RenJiao-K12-HangZhou`、页脚「源码」全部指向 `https://github.com/cattei/RenJiao-K12-HangZhou`；`tests/test_report_link.js` 与 `scripts/screenshot.js` 期望值一致；83 个页面请求中无 `workers.dev` / `test.pansgo.com`。README / CHANGELOG 中的 `math.pansgo.com`、`cn-math-taxonomy` 是明确标注「上游」的演示链接、Pages 项目名与部署脚本注释，按合规要求保留，不是面向用户的功能性外链。**上游合规信息全部保留**：CC BY-NC 4.0 许可、原作者署名与商用授权联系方式、`.github/ISSUE_TEMPLATE/config.yml` 的 `contact_links`、标注「上游」的 Pages 备份与演示链接、fork 来源与 `upstream` 远端说明、`docs/feedback-*` 历史记录。
+  - 格式与测试适配：清理上游新增 `docs/english-pending-classification-20261112.md` 的 EOF 空行以满足 `git diff --check`；同步把 `scripts/enj_pending.py` 的 `render_doc()` 末尾改为单个换行，使 `tests/test_enj_pending.py` 的「文档 == 生成器输出」断言仍通过（正文未改）。
+  - 验收：`scripts/validate.py` 常规与 `STRICT_STANDARDS=1` 严格模式均 `VALIDATION PASSED`；`node tests/test_report_link.js` 通过；6 个改动 JS 逐个 `node --check` 通过；`git diff --check` 零错误；93 个 `data/*.json` 全量解析通过；3 处保留标注与 2 处课标映射（`cnm_130` / `cnm_192` 的 `cms-2022:4.GG.*`）仍在。上游测试套件中 `test_ci_workflow`(17)、`test_engine`(107)、`test_blindspots`(8)、`test_children`(38)、`test_question_ids`(4)、`test_stem_compat`(5)、`test_jmor_safety`、`test_enj_pending`(7) 全部通过。本机 Edge + Playwright 静态服务 8799（`--noproxy '*'` / `--no-proxy-server`）**18/18 浏览器断言通过**：四卡实时统计与 `data/*.json` 一致（3446 / 4919 / 13931 / 791）、十科卡片 10 张、语文态初中七至九年级入口、道法态无九年级空卡（九年级 21 点）、`#side-collapse` 存在、品牌标题、390px 无横向溢出、无 JS 异常、无第三方端点请求、页脚源码与分享图二维码指向本仓库。
+  - 已知不兼容（**非本次引入，已用合并前 `HEAD` 基线复现同样错误**）：`tests/test_home.js`、`tests/test_jmor_frontend.js` 是针对上游版首页 DOM/标题/单学科计数写的断言，本地十科 Bento 重写后一直不通过；`tests/test_pages_script_cache.js` 是上游 Linux 专用测试（硬编码 `/usr/bin:/bin` PATH），本机 Windows 找不到 `bash` 导致 `status=null`，CI（Linux）可过。本次未为迎合这些断言改动本地视觉结构，也未跳过校验强推。
+  - 备份：`_bak_code_周同步_20261112/`（工作区根目录）：`_start_state.txt` 起始状态、`_fetch_state.txt` 拉取记录、`_pre_merge_diff.txt` 差异面、`_merge_result.txt` 合并结果、`conflict_state/` 两个冲突文件原始态、`docs/hangzhou-alignment(1).md` 并行会话在制品、`_browser_assertions.txt` 浏览器断言明细。并行会话的未跟踪文件 `docs/hangzhou-alignment(1).md` 全程未改动、未 stash、未加入提交。
+  - 回滚（在 `code/` 目录执行；同步前 `origin/main` 基线为 `3db1621d76078e49d444ee0aa44c4aec3b316241`）：
+    ```bash
+    # A. 撤销本次合并提交，保留历史（推荐；执行前确认 HEAD 为本次合并提交）
+    git revert -m 1 $(git rev-parse HEAD) && git push origin main
+    # B. 完全回到同步前快照（仅在确认期间无他人新提交时使用）
+    git reset --hard 3db1621d76078e49d444ee0aa44c4aec3b316241 && git push --force-with-lease origin main
+    # C. 用备份覆盖在制品（如需恢复并行会话文件）
+    cp -p "_bak_code_周同步_20261112/docs/hangzhou-alignment(1).md" "docs/hangzhou-alignment(1).md"
+    ```
+
 - 2026-11-11：停用第三方访问统计上报，并把面向用户的外链统一指向本仓库。
   - 起点 `dc5542a`（线上同步、工作树干净）。上游合并带入的 `assets/stats-config.js` 把 `endpoint` 指向上游作者自建的 Cloudflare Worker（`math-pansgo-stats.xiaokunfeng310.workers.dev/collect`），5 个页面引用；本机不可达且存在数据外流到第三方域名的问题。现置为空串——`stats.js` 中 `if (cfg.endpoint)` 为空即不发 `sendBeacon` / `fetch`，本地 `cnm:track` 事件与 PWA 回访统计仍照常工作。**GitHub 仓库地址不是采集端点，不能填进 `endpoint`。**
   - 归属统一到 `https://github.com/cattei/RenJiao-K12-HangZhou`：诊断页报错入口 `ISSUE_NEW_URL`（保留 `question-fix.yml` 模板，本仓库已有该模板）、结果页 `iq-line` 引流、分享图二维码 `SHARE_URL` 与「扫码打开本站」文案、PWA 引导图两处域名文字、首页页脚「资源搜索」改为「源码」；同步更新 `tests/test_report_link.js`、`scripts/screenshot.js` 的期望值与 `diagnose/README.md`、README 的相关描述。`scripts/screenshot.js` 中 `top-banner` / `iq-card` 两组断言针对上游页面的引流元素，本地十科视觉版早已没有对应元素，属上游遗留；本轮只同步了其中的 URL 与结果页文案，未改动这两组已失效的断言逻辑。
@@ -97,6 +122,42 @@
   - README：新增「项目定位：面向杭州 K12 的同步学习材料与教学内容」，列出仓库内可查证的 2025 修订课标、2026 秋新教材目录、2026 春 PEP 四下、新增学科等对齐记录；同时如实标注边界——仓库里没有杭州市 2026 年招生 / 教学进度 / 教材选用政策文件，未逐校核对杭州各区实际版本与进度，`杭州人教版小学/`（7 学科、12648 个文件、含 2022 课标修订版 / 旧课标版版本清单）与 `K12小学初中高中全套教材电子课本/`（含 56 份杭州各区试卷）均在仓库外、尚未与图谱知识点建立逐条对应。
   - 验收：`node --check`、CSS 括号、JSON 解析通过；Playwright + Edge 真实浏览器 36 项断言全部通过（十科切换、十科合计与十科卡片数字、年级 6/3/5 分组、学段筛选、本机盲区、物理 / 化学 / 科学三态、三个子页面、390px 移动端无横向溢出、无 JS 异常）；桌面首屏、物理态、手机首屏与十科 Bento 区截图复核无溢出重叠。
   - 回滚（在 `code/` 目录执行）：`git checkout -- index.html assets/site.css assets/home.js sw.js manifest.webmanifest package.json README.md CHANGELOG.md explore/index.html diagnose/index.html children/index.html children/history.html && rm -f assets/hero-learning.webp`；或用备份覆盖 `cp -r "../_bak_code_视觉改版v1_20261105/." ./`。注意：本条改动前的线上基线是 `972f9bb`，回滚只能回到该提交；2026-11-04 的视觉 v1 保留在备份目录与 stash 中。
+
+## 2026-11-12（初中英语：65 个待核点分成两类）
+
+- 2026-11-12：仍挂「N年级X册 待核」的 65 个初中英语知识点保持原章节，按已有核对记录标了 `catalog_status`。`body_checked_no_lesson` 表示已核教材但未找到对应课业（22）：七上交通四点、七下读周末日记、八上 `cne_j134` 与 `cne_j136`、八下 11 点、九上 `cne_j188`、`cne_j201`、`cne_j204`、`cne_j206`。`evidence_insufficient` 表示证据仍不足（43）：八上其余 10 点、九上其余 33 点。八上 12 点和九上 37 点没有按官方文档的概括句批量归入第一类。`cne_j180` 的语法附录书页108已教 been 与 gone，单元归属未定，不改挂第7或第8单元，也不写成书里没教。不是 `official_toc`，也不是道法的 `pending_official_lesson_list`。点名、题目、先修、学期和章节字符串未改。前台仍只显示「待核」。因知识点增加了字段，`sw.js` 由 v17 改为 v18。详见 `docs/english-pending-classification-20261112.md`。仅本地变更，未推送、未部署。
+
+## 2026-11-12（部署脚本：Wrangler 本地缓存目录）
+
+- 2026-11-12：`scripts/deploy-cf.sh` 改为设置 wrangler 4.86.0 实际读取的 `WRANGLER_CACHE_DIR` 到当前用户可写目录，避免 mkdir `/node_modules/.cache/wrangler` 失败。调用方已提供可写路径时沿用。上传临时目录仍在成功或失败后清理；失败退出码原样返回。未改数据、`sw.js` 或线上。未部署。
+
+## 2026-11-11（初中英语：按官方阅读器正文续核八下11个待核点）
+
+- 2026-11-11：按国家中小学智慧教育平台人教版2022课标修订英语八年级下册官方阅读器正文、Reading Plus 和语法附录，续核 11 个待核点。此前两次跳到语法附录书页105后阅读器画布一直转圈；本次从目录逐页翻入第1单元正文，印刷页 + 9 = PDF.js 页。11 点正文后仍全部挂「八年级下册 待核」，不删除：Why don't you、读建议信、选词补全、be supposed to、场馆经历三点、旧物三点均未见可改挂的独立课业；been 与 gone 只在语法附录书页108写明，单元语法栏未见对比，不改挂到第7或第8单元。同晚复核七上交通四点与七下「读周末日记」既有正文截图，结论不变，仍待核。未改点名、题目、生成器挂接、稳定 id、课标 `verbatim` 和 `standards.confidence`。`questions.json` 未变。`sw.js` 仍为 v17。仍未见八下印刷书号，未填写。仅本地变更，未推送、未部署。详见 `docs/english-g8-official-reader-20261111.md`。
+
+## 2026-11-11（初中道法：按官方阅读器正文补四个空框）
+
+- 2026-11-11：按国家中小学智慧教育平台官方阅读器正文，为七至八年级道法四个原先空着的官方框各补 1 个知识点、4 道题（`cnd_j107`–`cnd_j110`）。七上「在奉献中成就精彩人生」（印刷第97–99页，第97页上半仍为上一框收束，未写入本点）；七下「认识民法典」（第83–85页）；八上「友善待人」（第42–44页）；八下「国家行政机关的性质和职权」（第77–79页）。页码映射为印刷页码 + 7 = PDF.js 页码。未删点，未改 `cnd_j001`–`cnd_j106` 的 id、点名、题目和原框名。新增 soft 先修 3 条（奉献←劳动，友善←文明有礼、友善←诚实守信），hard 0。人身权财产权←认识民法典、依法行政←行政机关性质和职权未写成 soft：新点 id 晚于已有后一框，生成器要求先修排在后续点之前。顺带修正 `scripts/jmor_build.py` 按 id 排序时把 `cnd_j100` 及以上截成个位的问题，九上第三单元 `cnd_j099` 现排在 `cnd_j100`–`cnd_j103` 之前。题目按可见教学句改写情境，不把教材原句当作逐字试题，不编条文号、赔偿数额、年龄、行政程序和处罚。课标仍是 `inferred`，`verbatim` 为 false。九下仍未建。累计初中道法 110 点、440 题。因更新了主数据，`sw.js` 本地 v16 → v17。仅本地变更，未推送、未部署。详见 `docs/junior-mor-g78-official-reader-20261111.md`。
+
+
+## 2026-11-11（初中英语：按官方阅读器正文改挂部分七年级待核点）
+
+- 2026-11-11：按国家中小学智慧教育平台人教版2022课标修订英语官方阅读器正文、Reading Plus 和语法附录，改挂 3 个七年级待核点：`cne_j010` 词尾 s 的读音改挂「七年级下册 第1单元 Animal Friends」（七下语法附录书页88「名词复数」有 -s/-es 读 /s/、/z/、/ɪz/ 的规则；semester 由上改为下）；`cne_j093` 周末活动、`cne_j096` 谈论上周末改挂「七年级下册 第7单元 A Day to Remember」（Section A 书页50 有上周末活动听说）。`cne_j097` 读周末日记仍「七年级下册 待核」（Section B 书页54 是周五农场秋游日记，不是周末日记）。`cne_j053`–`cne_j056` 交通四点仍「七年级上册 待核」（七上 Reading Plus「My Floating School」不是独立的上学方式课）。八上 12 个待核点已核正文，未改挂（第8单元邀请信是正式校园演讲邀请，不是聚会邀请）。八下 11 个待核点因官方阅读器未能渲染正文，未评估，仍待核。九上 37 个待核点已核正文，未改挂。未改点名、题目、稳定 id、课标 `verbatim` 和 `standards.confidence`。`questions.json` 未变。因 `cne_j010` 改到七下，软先修 `cne_j011`←`cne_j010` 会指向更晚的册，已改为 `cne_j011`←`cne_j009`，并增加软先修 `cne_j062`←`cne_j010`（词尾 s 与动物同在第1单元）；硬先修未改。`sw.js` 仍为 v16。仅本地变更，未推送、未部署。详见 `docs/english-g7-official-reader-20261111.md`、`docs/english-g8-official-reader-20261111.md`、`docs/english-g9-official-reader-20261111.md`。
+
+
+## 2026-11-11（初中道法：七至八年级按官方阅读器改挂）
+
+- 2026-11-11：按国家中小学智慧教育平台官方阅读器目录，把已有七至八年级 85 个《道德与法治》知识点（`cnd_j001`–`cnd_j085`）全部改挂为已确认，`catalog_status` 为 `official_toc`，0 个待核。四册均带「根据2022年版课程标准修订」：七上 ISBN 978-7-107-38238-3、contentId `11446212-4b7b-4094-afe3-bd5b4f2b3f0c`；七下 ISBN 978-7-107-38239-0、contentId `4e1a2a9e-1e62-451f-a52e-ef99cb4e8bf2`；八上 ISBN 978-7-107-39650-2、contentId `5a29b928-d6da-4131-a69e-4c54941f7651`；八下 ISBN 978-7-107-40548-8、contentId `f1db2a19-2513-4626-8e6c-275cf549bdf2`。未改点名、题目、稳定 id；未新建点去填官方空框。未挂上的官方框：七上「在奉献中成就精彩人生」、七下「认识民法典」、八上「友善待人」、八下「国家行政机关的性质和职权」。生成器增加 unit 90 /「N年级X册 待核」钩子。课文正文未逐字核对，课标仍是 `inferred`，`verbatim` 为 false。九上 21 点未改挂接，九下未建。因更新了诊断页文案和七至八年级目录数据，`sw.js` 本地 v15 → v16。仅本地变更，未推送、未部署。详见 `docs/junior-mor-g78-official-reader-20261111.md`。
+
+## 2026-11-11（初中道法：九上官方目录）
+
+- 2026-11-11：按国家中小学智慧教育平台官方阅读器目录，新增统编《道德与法治》九年级上册（根据2022年版课程标准修订，ISBN 978-7-107-41303-2，contentId `03d41525-a373-4286-92c3-3f2d7cbe3b79`）可测概念。新增 21 点、84 题（`cnd_j086`–`cnd_j106`），10 课都有点；第六课五个方面、第八课三个环节分开。九上 `catalog_status` 为 `official_toc`。课文正文未逐字核对，课标仍是 `inferred`，`verbatim` 为 false。平台上的九下卡片没有修订标记，不建九下。七至八年级 85 点、340 题及 `pending_official_lesson_list` 未改。累计 106 点、424 题、先修边 7 条（soft 7，hard 0）。详见 `docs/junior-mor-g9-official-reader-20261111.md`。`sw.js` 本地 v15。仅本地变更，未推送、未部署。
+
+- 2026-11-11：将九上 `cnd_j103` 点名由「在实现高质量发展中推动高质量发展」改为与官方框名一致的「推动高质量发展」。课名、框名和题目未改。
+
+## 2026-11-11（七下英语：官方阅读器改挂课序）
+
+- 2026-11-11：按国家中小学智慧教育平台人教版2022课标修订《英语 七年级下册》（ISBN 978-7-107-38255-0）官方目录，改写生成器七下 `UNITS` 为官方 1–8 单元，并修正与目录不符的挂接。`cne_j093` 周末活动、`cne_j096` 谈论上周末、`cne_j097` 读周末日记改挂「七年级下册 待核」，不按旧版 What did you do last weekend 挂在第8单元。Did 提问、不规则动词过去式和故事三点仍在第8单元 Once upon a Time。词尾 s 和交通四点仍在「七年级上册 待核」：已核七下附录发音页（书页83–87，语法从书页88起），未见词尾 -s/-es 读 /s/、/z/、/ɪz/ 的规则，也不把 Unit 1 的 –(e)s 练习提示改挂为正式课。未新增语音点，未改题目、稳定 id、课标 `verbatim` 和 `standards.confidence`。`sw.js` 仍为 v14。仅本地变更，未推送、未部署。详见 `docs/english-g7-official-reader-20261111.md`。
 
 ## 2026-11-11（七上英语：官方阅读器改挂四个语音点）
 

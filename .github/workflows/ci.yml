@@ -41,6 +41,9 @@ jobs:
       - name: 初中道法安全测试
         run: python3 tests/test_jmor_safety.py
 
+      - name: 初中英语待核分类
+        run: python3 tests/test_enj_pending.py
+
       - name: 初中道法前端测试
         run: node tests/test_jmor_frontend.js
 
@@ -67,3 +70,6 @@ jobs:
 
       - name: 首页题库异步加载
         run: node tests/test_home.js
+
+      - name: 页面脚本缓存测试
+        run: node tests/test_pages_script_cache.js

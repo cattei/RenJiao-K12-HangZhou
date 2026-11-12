@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""把初中道德与法治（七上至八下）编译进 data/。
+"""把初中道德与法治（七上至九上）编译进 data/。
 
 可以重复运行。只替换 cnd_j 知识点和 cds-2022:4 课标条目。
 保留小学 cnd_p、其他学科、以及第一至第三学段道法课标。
-不建九上、九下。不把第三方目录标成已核实。
+七上至九上按智慧教育平台官方阅读器目录改挂或入库。
+对不上官方课、框的点挂「N年级X册 待核」。
+九下和九年级全一册不建点。
 
 用法：python3 scripts/jmor_build.py
 """
@@ -21,14 +23,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import jmor_lib as L  # noqa: E402
 
-for _mod in ("jmor_g7a", "jmor_g7b", "jmor_g8a", "jmor_g8b"):
+for _mod in ("jmor_g7a", "jmor_g7b", "jmor_g8a", "jmor_g8b", "jmor_g9a"):
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), _mod + ".py")
     if os.path.isfile(path):
         importlib.import_module(_mod)
 
 from jmor_lib import (  # noqa: E402
-    CATALOG_STATUS, CODE_OF, EDGES, NOTICE_URL, PDF_URL, STANDARD_ROWS, TOPICS,
-    check_question, materialise_questions,
+    CATALOG_STATUS, CODE_OF, EDGES, NOTICE_URL, OFFICIAL_CATALOG_STATUS,
+    PDF_URL, PENDING_UNIT, STANDARD_ROWS, TOPICS,
+    check_question, materialise_questions, pending_chapter,
 )
 from verify_questions import verify_all  # noqa: E402
 
@@ -61,8 +64,8 @@ def rank_of(spec):
 
 
 def id_num(spec):
-    """cnd_jNNN 的数字部分。不改写 id 本身。"""
-    tail = str(spec["id"])[6:]
+    """cnd_jNNN 的数字部分。不改写 id 本身。'cnd_j' 为 5 个字符，避免三位数 id 被截成个位。"""
+    tail = str(spec["id"])[5:]
     if not tail.isdigit():
         raise SystemExit("无法按原 id 排序：%s" % spec["id"])
     return int(tail)
@@ -91,6 +94,24 @@ def lost_junior_ids(old_ids, new_ids):
 
 
 VOL_CN = {7: "七", 8: "八", 9: "九"}
+PENDING_CHAPTER_RE = re.compile(r"^[七八]年级[上下]册 待核$")
+
+
+def want_catalog_status(spec):
+    if spec.get("unit") == PENDING_UNIT:
+        return CATALOG_STATUS
+    if spec.get("grade") in (7, 8) or (spec.get("grade") == 9 and spec.get("semester") == "上"):
+        return OFFICIAL_CATALOG_STATUS
+    return CATALOG_STATUS
+
+
+def want_catalog_status_written(topic):
+    chapter = topic.get("chapter") or ""
+    if PENDING_CHAPTER_RE.fullmatch(chapter):
+        return CATALOG_STATUS
+    if topic.get("grade") in (7, 8) or (topic.get("grade") == 9 and topic.get("semester") == "上"):
+        return OFFICIAL_CATALOG_STATUS
+    return CATALOG_STATUS
 
 
 def volume_labels(rows):
@@ -107,11 +128,16 @@ def volume_labels(rows):
 def coverage_text(rows):
     labels = volume_labels(rows)
     listed = "、".join(labels) if labels else "无"
-    return (
+    text = (
         "本批已入库 %d 个知识点，册次只有 %s。"
-        "未出现的册次没有建点。这不是四册全覆盖，九上、九下也未建点。"
-        "课级目录仍待官方逐课核实。"
+        "未出现的册次没有建点。这不是四册全覆盖。"
     ) % (len(rows), listed)
+    vols = set(labels)
+    if {"七上", "七下", "八上", "八下", "九上"} <= vols and "九下" not in vols:
+        text += "已有七上至九上，已按官方阅读器目录改挂，九下未建点，不是六册全覆盖。"
+    elif "九下" not in vols:
+        text += "不是六册全覆盖。"
+    return text
 
 
 def build_question(tid, index, made, slot):
@@ -141,9 +167,13 @@ def main():
     if not TOPICS:
         print("没有初中道法知识点可写", file=sys.stderr)
         return 1
-    if any(t["grade"] == 9 for t in TOPICS):
-        print("九上九下不允许出现在本批", file=sys.stderr)
-        return 1
+    for t in TOPICS:
+        if t["grade"] == 9 and t["semester"] != "上":
+            print("九年级只允许上册，拒绝 %s（%s）" % (t["id"], t["semester"]), file=sys.stderr)
+            return 1
+        if t["semester"] == "全":
+            print("道法不建全一册：%s" % t["id"], file=sys.stderr)
+            return 1
     topics = load("topics.json")
     deps = load("dependencies.json")
     questions = load("questions.json")
@@ -233,8 +263,17 @@ def main():
     new_topics = []
     new_questions = []
     for i, spec in enumerate(TOPICS):
-        if spec["catalog_status"] != CATALOG_STATUS:
-            print("%s 目录状态不是待核" % spec["id"], file=sys.stderr)
+        want_status = want_catalog_status(spec)
+        if spec["catalog_status"] != want_status:
+            print("%s 目录状态应为 %s，实际 %s" % (spec["id"], want_status, spec["catalog_status"]), file=sys.stderr)
+            return 1
+        ch = L.chapter(spec["grade"], spec["semester"], spec["unit"])
+        if spec["unit"] == PENDING_UNIT:
+            if ch != pending_chapter(spec["grade"], spec["semester"]) or "第90单元" in ch:
+                print("%s 待核章节应为「N年级X册 待核」，实际 %s" % (spec["id"], ch), file=sys.stderr)
+                return 1
+        elif "待核" in ch:
+            print("%s 已确认点不应挂待核桶：%s" % (spec["id"], ch), file=sys.stderr)
             return 1
         made = materialise_questions(spec)
         for q in made:
@@ -261,7 +300,7 @@ def main():
             "external": False,
             "subject": "morality",
             "standards": [ref],
-            "catalog_status": CATALOG_STATUS,
+            "catalog_status": spec["catalog_status"],
             "lesson": spec["lesson"],
             "frames": spec["frames"],
         }
@@ -317,14 +356,19 @@ def main():
     mo["coverage"] = coverage_text(new_topics)
     mo["junior_note"] = (
         "cds-2022:4.* 只标第四学段五个学习主题的名称，confidence 为 inferred，verbatim 为 false，page_or_ref 为「待核」。"
-        "通知页 %s ，PDF %s 。教材目录字段 catalog_status=pending_official_lesson_list。"
+        "通知页 %s ，PDF %s 。"
+        "七上至九上教材目录来自智慧教育平台官方阅读器，已确认点 catalog_status=official_toc。"
+        "对不上官方课、框的点挂「N年级X册 待核」，catalog_status=pending_official_lesson_list。"
+        "九下未建点。"
         "已入库 %d 个知识点（%s）。不把未入库册次写成已经完整覆盖。"
     ) % (NOTICE_URL, PDF_URL, len(new_topics), "、".join(labels))
     primary_stage = "第一至第三学段（1–6年级）"
     mo["stage"] = primary_stage + "；第四学段（7–9年级）仅主题推断。已入库册次：%s（%d 个知识点）" % (
         "、".join(labels), len(new_topics))
-    sentence = "初中道法由 scripts/jmor_build.py 写入：已入库%d个知识点（%s），目录待官方逐课核实，未出现的册次未建点。" % (
-        len(new_topics), "、".join(labels))
+    sentence = (
+        "初中道法由 scripts/jmor_build.py 写入：已入库%d个知识点（%s），"
+        "七上至九上目录来自智慧教育平台官方阅读器，九下未建点，不是六册全覆盖。"
+    ) % (len(new_topics), "、".join(labels))
     note = mo.get("note") or ""
     note = re.sub(r"初中道法由 scripts/jmor_build.py 写入：[^。]*。", "", note)
     note = re.sub(r"初中七上至八下由 scripts/jmor_build.py 写入，目录待官方逐课核实，九上九下未建点。", "", note)
@@ -353,9 +397,22 @@ def main():
     if [t["id"] for t in junior] != [t["id"] for t in new_topics]:
         print("初中 id 顺序写回不一致", file=sys.stderr)
         return 1
-    if any(t.get("catalog_status") != CATALOG_STATUS for t in junior):
-        print("存在未标待核的初中点", file=sys.stderr)
-        return 1
+    for t in junior:
+        want_status = want_catalog_status_written(t)
+        if t.get("catalog_status") != want_status:
+            print("目录状态不符：%s 应为 %s" % (t["id"], want_status), file=sys.stderr)
+            return 1
+        ch = t.get("chapter") or ""
+        if PENDING_CHAPTER_RE.fullmatch(ch):
+            if t.get("catalog_status") == OFFICIAL_CATALOG_STATUS:
+                print("待核点不应标成 official_toc：%s" % t["id"], file=sys.stderr)
+                return 1
+            if "第90单元" in ch:
+                print("待核章节不应写成第90单元：%s" % t["id"], file=sys.stderr)
+                return 1
+        elif t.get("grade") in (7, 8) and t.get("catalog_status") != OFFICIAL_CATALOG_STATUS:
+            print("七至八年级已确认点目录状态应为 official_toc：%s" % t["id"], file=sys.stderr)
+            return 1
     if any(t.get("standards", [{}])[0].get("confidence") != "inferred" for t in junior):
         print("存在非 inferred 的初中对齐", file=sys.stderr)
         return 1

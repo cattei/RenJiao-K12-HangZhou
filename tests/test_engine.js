@@ -717,9 +717,10 @@ test('英语：小学 197、初中 180–260、高中 220–320，不与数学�
   assert.strictEqual(en8.label, '八年级上册');
   assert.ok(en8.ids.length > 0 && en8.ids.every((id) => id.startsWith('cne_j') && RG.byId[id].grade === 8 && RG.byId[id].semester === '上'));
   assert.ok(E.gradeTargets(RG, '八上').ids.every((id) => id.startsWith('cnm_')));
-  const en9 = E.gradeTargets(RG, '九全', 'english');
-  assert.strictEqual(en9.label, '九年级全一册');
-  assert.ok(en9.ids.length > 0 && en9.ids.every((id) => id.startsWith('cne_j') && RG.byId[id].grade === 9 && RG.byId[id].semester === '全'));
+  const en9 = E.gradeTargets(RG, '九上', 'english');
+  assert.strictEqual(en9.label, '九年级上册');
+  assert.ok(en9.ids.length > 0 && en9.ids.every((id) => id.startsWith('cne_j') && RG.byId[id].grade === 9 && RG.byId[id].semester === '上'));
+  assert.strictEqual(E.gradeTargets(RG, '九全', 'english'), null);
   const enGrade9 = E.gradeTargets(RG, '九年级', 'english');
   assert.ok(enGrade9.volumes.indexOf('九全') >= 0 && enGrade9.ids.every((id) => id.startsWith('cne_')));
   const mathGrade9 = E.gradeTargets(RG, '九年级');
@@ -734,7 +735,14 @@ test('英语：小学 197、初中 180–260、高中 220–320，不与数学�
   );
   const en7 = E.gradeTargets(RG, '七上', 'english');
   assert.ok(en7.ids.indexOf('cne_j001') >= 0);
-  assert.strictEqual(en7.ids.filter((id) => RG.byId[id].chapter === '七年级上册 待核').length, 5);
+  assert.strictEqual(en7.ids.filter((id) => RG.byId[id].chapter === '七年级上册 待核').length, 4);
+  assert.deepStrictEqual(
+    E.parseChapter('七年级下册 待核'),
+    { volume: '七下', chapterNo: '待核', chapterName: '未挂到具体单元', section: '' }
+  );
+  const en7b = E.gradeTargets(RG, '七下', 'english');
+  const pending7b = en7b.ids.filter((id) => RG.byId[id].chapter === '七年级下册 待核').sort();
+  assert.deepStrictEqual(pending7b, ['cne_j097']);
   assert.deepStrictEqual(
     E.parseChapter('必修第一册 欢迎单元 Welcome Unit'),
     { volume: '必修一', chapterNo: '欢迎单元', chapterName: 'Welcome Unit', section: '' }

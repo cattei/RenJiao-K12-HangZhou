@@ -9217,9 +9217,9 @@
   },
   {
     "topicId": "cne_j011",
-    "prerequisiteId": "cne_j010",
+    "prerequisiteId": "cne_j009",
     "strength": "soft",
-    "reason": "按 Go for it! 的常见教学顺序，先学「词尾 s 的读音」，再学「介绍家人」。"
+    "reason": "介绍家人在七年级上册第2单元；名词复数在七年级上册预备单元3。词尾 s 的读音已按官方语法附录改挂七年级下册第1单元，不再作为介绍家人的先修。"
   },
   {
     "topicId": "cne_j012",
@@ -9705,31 +9705,31 @@
     "topicId": "cne_j093",
     "prerequisiteId": "cne_j092",
     "strength": "soft",
-    "reason": "按 Go for it! 的常见教学顺序，先学「读旅行日记」，再学「周末活动」。"
+    "reason": "旅行日记在七下第7单元 A Day to Remember；周末活动在官方七下目录无同名课（第8单元是讲故事），这条软边只保留原来的学习顺序。"
   },
   {
     "topicId": "cne_j094",
     "prerequisiteId": "cne_j093",
     "strength": "soft",
-    "reason": "按 Go for it! 的常见教学顺序，先学「周末活动」，再学「Did 提问」。"
+    "reason": "Did 提问在七下第8单元 Once upon a Time（Simple past tense (2)）；周末活动无同名课，软边只保留原来的学习顺序。"
   },
   {
     "topicId": "cne_j095",
     "prerequisiteId": "cne_j094",
     "strength": "soft",
-    "reason": "按 Go for it! 的常见教学顺序，先学「Did 提问」，再学「不规则动词过去式」。"
+    "reason": "Did 提问和不规则动词过去式都在七下第8单元 Once upon a Time（Simple past tense (2)）。"
   },
   {
     "topicId": "cne_j096",
     "prerequisiteId": "cne_j095",
     "strength": "soft",
-    "reason": "按 Go for it! 的常见教学顺序，先学「不规则动词过去式」，再学「谈论上周末」。"
+    "reason": "不规则动词过去式在第8单元；谈论上周末无同名课，软边只保留原来的学习顺序。"
   },
   {
     "topicId": "cne_j097",
     "prerequisiteId": "cne_j096",
     "strength": "soft",
-    "reason": "按 Go for it! 的常见教学顺序，先学「谈论上周末」，再学「读周末日记」。"
+    "reason": "谈论上周末和读周末日记在官方七下目录均无同名课，软边只保留原来的学习顺序。"
   },
   {
     "topicId": "cne_j098",
@@ -10113,7 +10113,7 @@
     "topicId": "cne_j163",
     "prerequisiteId": "cne_j097",
     "strength": "soft",
-    "reason": "按人教版新版 Go for it!的单元顺序，先学「读周末日记」，再学「故事用词」。"
+    "reason": "故事用词在七下第8单元 Once upon a Time；读周末日记无同名课，软边只保留原来的学习顺序。"
   },
   {
     "topicId": "cne_j164",
@@ -27474,36 +27474,6 @@
     "reason": "九上已有文天祥《过零丁洋》和张养浩《山坡羊·潼关怀古》。这里是《南安军》和《骊山怀古》，句子和题目都要分开。"
   },
   {
-    "topicId": "cnd_j003",
-    "prerequisiteId": "cnd_j002",
-    "strength": "soft",
-    "reason": "教学上宜先分清初中的学习方式和时间条件已经变了，再判断目标是否仍按旧条件来写。目标能否核对，概念上并不以适应变化的定义为前提。"
-  },
-  {
-    "topicId": "cnd_j005",
-    "prerequisiteId": "cnd_j004",
-    "strength": "soft",
-    "reason": "教学上宜先看清自己的具体事实，再决定发挥哪一项优势、先改哪一处短处。题目已经给出优势和短处时，并不以多渠道认识的定义为前提。"
-  },
-  {
-    "topicId": "cnd_j007",
-    "prerequisiteId": "cnd_j006",
-    "strength": "soft",
-    "reason": "教学上宜先知道梦想要靠当下的行动靠近，再看学习之后的反思有没有改到带来结果的方法。何谓有效反思，概念上不以梦想的定义为前提。"
-  },
-  {
-    "topicId": "cnd_j053",
-    "prerequisiteId": "cnd_j045",
-    "strength": "soft",
-    "reason": "教学上宜先见过行使自己的便利时不得损害他人合法权益，再判断外放、编造指责能否称作自由。掌握自由并不以背下权利界限定义为前提，这条 soft 不是掌握门槛。"
-  },
-  {
-    "topicId": "cnd_j056",
-    "prerequisiteId": "cnd_j050",
-    "strength": "soft",
-    "reason": "教学上宜先把道德倡议和法律规定的义务分开，再判断一次志愿邀请是不是违法、分内值日能否推掉。角色责任的场景可以单独判断，这条 soft 不是掌握门槛。"
-  },
-  {
     "topicId": "cns_p002",
     "prerequisiteId": "cns_p001",
     "strength": "soft",
@@ -29476,5 +29446,71 @@
     "prerequisiteId": "cns_p251",
     "strength": "hard",
     "reason": "评估改进塔台模型要先测试过。"
+  },
+  {
+    "topicId": "cne_j062",
+    "prerequisiteId": "cne_j010",
+    "strength": "soft",
+    "reason": "词尾 s 的读音和动物都在七年级下册第1单元 Animal Friends，先分辨名词复数词尾读音，再学动物词汇。"
+  },
+  {
+    "topicId": "cnd_j003",
+    "prerequisiteId": "cnd_j002",
+    "strength": "soft",
+    "reason": "教学上宜先分清初中的学习方式和时间条件已经变了，再判断目标是否仍按旧条件来写。目标能否核对，概念上并不以适应变化的定义为前提。"
+  },
+  {
+    "topicId": "cnd_j005",
+    "prerequisiteId": "cnd_j004",
+    "strength": "soft",
+    "reason": "教学上宜先看清自己的具体事实，再决定发挥哪一项优势、先改哪一处短处。题目已经给出优势和短处时，并不以多渠道认识的定义为前提。"
+  },
+  {
+    "topicId": "cnd_j007",
+    "prerequisiteId": "cnd_j006",
+    "strength": "soft",
+    "reason": "教学上宜先知道梦想要靠当下的行动靠近，再看学习之后的反思有没有改到带来结果的方法。何谓有效反思，概念上不以梦想的定义为前提。"
+  },
+  {
+    "topicId": "cnd_j107",
+    "prerequisiteId": "cnd_j025",
+    "strength": "soft",
+    "reason": "教学上宜先辨清人生价值要在实在的劳动里创造，再理解把小我融入祖国和人民、立足岗位作奉献。奉献可以凭题面单独判断，这条 soft 不是掌握门槛。"
+  },
+  {
+    "topicId": "cnd_j109",
+    "prerequisiteId": "cnd_j051",
+    "strength": "soft",
+    "reason": "教学上宜先辨清文明有礼要按场合尊重他人，再理解友善待人、有原则的宽容和助人为乐。友善可以凭题面单独判断，这条 soft 不是掌握门槛。"
+  },
+  {
+    "topicId": "cnd_j109",
+    "prerequisiteId": "cnd_j052",
+    "strength": "soft",
+    "reason": "教学上宜先辨清诚实守信是说清事实并履行正当承诺，再理解友善待人。友善可以凭题面单独判断，这条 soft 不是掌握门槛。"
+  },
+  {
+    "topicId": "cnd_j053",
+    "prerequisiteId": "cnd_j045",
+    "strength": "soft",
+    "reason": "教学上宜先见过行使自己的便利时不得损害他人合法权益，再判断外放、编造指责能否称作自由。掌握自由并不以背下权利界限定义为前提，这条 soft 不是掌握门槛。"
+  },
+  {
+    "topicId": "cnd_j056",
+    "prerequisiteId": "cnd_j050",
+    "strength": "soft",
+    "reason": "教学上宜先把道德倡议和法律规定的义务分开，再判断一次志愿邀请是不是违法、分内值日能否推掉。角色责任的场景可以单独判断，这条 soft 不是掌握门槛。"
+  },
+  {
+    "topicId": "cnd_j092",
+    "prerequisiteId": "cnd_j091",
+    "strength": "soft",
+    "reason": "教学上宜先辨清社会主要矛盾已经转化为美好生活需要和不平衡不充分的发展之间的矛盾，再理解进入新时代不等于问题已经消失。新时代的意义可以凭题面单独判断，这条 soft 不是掌握门槛。"
+  },
+  {
+    "topicId": "cnd_j103",
+    "prerequisiteId": "cnd_j101",
+    "strength": "soft",
+    "reason": "教学上宜先知道新发展理念是创新、协调、绿色、开放、共享，再判断高质量发展是不是只把速度降下来。高质量发展的题面可以单独判断，这条 soft 不是掌握门槛。"
   }
 ]
